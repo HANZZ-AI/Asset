@@ -1,51 +1,92 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no"
   >
 
-  <title>Hand Frame Camera</title>
+  <title>Hand Gesture Camera</title>
+
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     html,
     body {
       margin: 0;
+      padding: 0;
+
       width: 100%;
       height: 100%;
+
       overflow: hidden;
+
       background: #000;
-      font-family: Arial, sans-serif;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
     }
 
+
+    /* =========================================
+       VIDEO
+    ========================================= */
+
     #video {
+
       position: fixed;
+
       inset: 0;
 
       width: 100%;
       height: 100%;
 
       object-fit: cover;
+
+      background: #000;
+
+      z-index: 1;
     }
 
+
+    /* =========================================
+       CANVAS
+    ========================================= */
+
     #canvas {
+
       position: fixed;
+
       inset: 0;
 
       width: 100%;
       height: 100%;
 
       pointer-events: none;
+
+      z-index: 5;
     }
 
+
+    /* =========================================
+       STATUS
+    ========================================= */
+
     #topBar {
+
       position: fixed;
+
       top: 20px;
       left: 50%;
 
@@ -55,90 +96,193 @@
 
       border-radius: 30px;
 
-      background: rgba(0, 0, 0, 0.65);
       color: white;
+
+      background:
+        rgba(0, 0, 0, 0.65);
+
+      backdrop-filter:
+        blur(10px);
+
+      -webkit-backdrop-filter:
+        blur(10px);
 
       font-size: 14px;
 
-      z-index: 10;
+      text-align: center;
 
-      backdrop-filter: blur(10px);
+      white-space: nowrap;
+
+      z-index: 20;
     }
 
+
+    /* =========================================
+       START BUTTON
+    ========================================= */
+
     #start {
+
       position: fixed;
 
       left: 50%;
       top: 50%;
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
-      padding: 16px 24px;
+      padding:
+        18px 28px;
 
       border: none;
-      border-radius: 15px;
+
+      border-radius: 18px;
 
       background: white;
-      color: black;
 
-      font-size: 16px;
+      color: #111;
+
+      font-size: 17px;
+
       font-weight: bold;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 10px 40px
+        rgba(0, 0, 0, 0.4);
+
+      z-index: 50;
+    }
+
+
+    #start:active {
+
+      transform:
+        translate(-50%, -50%)
+        scale(0.95);
+    }
+
+
+    /* =========================================
+       INSTRUCTION
+    ========================================= */
+
+    #instruction {
+
+      position: fixed;
+
+      left: 50%;
+      bottom: 105px;
+
+      transform:
+        translateX(-50%);
+
+      width:
+        calc(100% - 40px);
+
+      max-width: 500px;
+
+      padding:
+        12px 18px;
+
+      border-radius: 16px;
+
+      background:
+        rgba(0, 0, 0, 0.55);
+
+      backdrop-filter:
+        blur(8px);
+
+      -webkit-backdrop-filter:
+        blur(8px);
+
+      color: white;
+
+      text-align: center;
+
+      font-size: 14px;
 
       z-index: 20;
     }
 
-    #instruction {
-      position: fixed;
 
-      bottom: 90px;
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      width: calc(100% - 40px);
-      max-width: 450px;
-
-      padding: 12px 18px;
-
-      text-align: center;
-
-      color: white;
-
-      background: rgba(0, 0, 0, 0.55);
-
-      border-radius: 15px;
-
-      z-index: 10;
-    }
+    /* =========================================
+       SHUTTER
+    ========================================= */
 
     #shutter {
+
       position: fixed;
 
       left: 50%;
-      bottom: 20px;
+      bottom: 22px;
 
-      transform: translateX(-50%);
+      transform:
+        translateX(-50%);
 
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
+
+      padding: 0;
 
       border-radius: 50%;
 
-      border: 5px solid white;
+      border:
+        5px solid white;
 
-      background: rgba(255, 255, 255, 0.2);
+      background:
+        rgba(255, 255, 255, 0.18);
 
-      z-index: 15;
+      box-shadow:
+        0 5px 30px
+        rgba(0, 0, 0, 0.4);
+
+      cursor: pointer;
 
       display: none;
+
+      z-index: 30;
     }
+
+
+    #shutter::after {
+
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 48px;
+      height: 48px;
+
+      transform:
+        translate(-50%, -50%);
+
+      border-radius: 50%;
+
+      background: white;
+    }
+
 
     #shutter:active {
-      transform: translateX(-50%) scale(0.9);
+
+      transform:
+        translateX(-50%)
+        scale(0.9);
     }
 
+
+    /* =========================================
+       FLASH
+    ========================================= */
+
     #flash {
+
       position: fixed;
+
       inset: 0;
 
       background: white;
@@ -149,12 +293,70 @@
 
       z-index: 100;
     }
+
+
+    /* =========================================
+       ERROR
+    ========================================= */
+
+    #errorBox {
+
+      position: fixed;
+
+      left: 50%;
+      top: 50%;
+
+      transform:
+        translate(-50%, -50%);
+
+      width:
+        calc(100% - 40px);
+
+      max-width: 500px;
+
+      padding: 20px;
+
+      border-radius: 18px;
+
+      background:
+        rgba(20, 20, 20, 0.95);
+
+      color: white;
+
+      text-align: center;
+
+      display: none;
+
+      z-index: 1000;
+    }
+
+
+    #errorBox button {
+
+      margin-top: 15px;
+
+      padding:
+        10px 18px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      cursor: pointer;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-  <!-- KAMERA -->
+
+  <!-- =========================================
+       CAMERA
+  ========================================= -->
+
   <video
     id="video"
     autoplay
@@ -162,43 +364,93 @@
     muted
   ></video>
 
-  <!-- OVERLAY HAND TRACKING -->
+
+  <!-- =========================================
+       HAND OVERLAY
+  ========================================= -->
+
   <canvas id="canvas"></canvas>
 
-  <!-- STATUS -->
+
+  <!-- =========================================
+       STATUS
+  ========================================= -->
+
   <div id="topBar">
     Kamera belum aktif
   </div>
 
-  <!-- INSTRUKSI -->
+
+  <!-- =========================================
+       INSTRUCTION
+  ========================================= -->
+
   <div id="instruction">
-    Bentuk huruf L dengan kedua tangan
+
+    Tekan tombol untuk mengaktifkan
+    kamera belakang.
+
   </div>
 
-  <!-- START -->
+
+  <!-- =========================================
+       START BUTTON
+  ========================================= -->
+
   <button id="start">
+
     📷 Aktifkan Kamera Belakang
+
   </button>
 
-  <!-- SHUTTER -->
-  <button id="shutter"></button>
 
-  <!-- FLASH -->
+  <!-- =========================================
+       SHUTTER
+  ========================================= -->
+
+  <button
+    id="shutter"
+    aria-label="Ambil foto"
+  ></button>
+
+
+  <!-- =========================================
+       FLASH
+  ========================================= -->
+
   <div id="flash"></div>
 
 
-  <script type="module">
+  <!-- =========================================
+       ERROR BOX
+  ========================================= -->
 
-    import {
-      HandLandmarker,
-      FilesetResolver
-    } from
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22";
+  <div id="errorBox">
+
+    <h3>Kamera tidak dapat dibuka</h3>
+
+    <p id="errorText"></p>
+
+    <button
+      onclick="location.reload()"
+    >
+      Coba Lagi
+    </button>
+
+  </div>
 
 
-    // =========================================================
+
+  <!-- =========================================
+       JAVASCRIPT
+  ========================================= -->
+
+  <script>
+
+
+    // =====================================================
     // ELEMENT
-    // =========================================================
+    // =====================================================
 
     const video =
       document.getElementById("video");
@@ -224,166 +476,414 @@
     const instruction =
       document.getElementById("instruction");
 
+    const errorBox =
+      document.getElementById("errorBox");
 
-    // =========================================================
+    const errorText =
+      document.getElementById("errorText");
+
+
+    // =====================================================
     // VARIABLES
-    // =========================================================
-
-    let handLandmarker = null;
+    // =====================================================
 
     let stream = null;
+
+    let handLandmarker = null;
 
     let lastVideoTime = -1;
 
     let frameActive = false;
 
-
-    // =========================================================
-    // START CAMERA
-    // =========================================================
-
-    async function startCamera() {
-
-      try {
-
-        topBar.textContent =
-          "Meminta akses kamera...";
+    let processing = false;
 
 
-        // Kamera belakang
-        try {
+    // =====================================================
+    // CHECK CAMERA SUPPORT
+    // =====================================================
 
-          stream =
-            await navigator.mediaDevices.getUserMedia({
+    function checkCameraSupport() {
 
-              video: {
-                facingMode: {
-                  exact: "environment"
-                },
+      if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+      ) {
 
-                width: {
-                  ideal: 1280
-                },
-
-                height: {
-                  ideal: 720
-                }
-              },
-
-              audio: false
-
-            });
-
-        } catch (error) {
-
-          // fallback
-
-          stream =
-            await navigator.mediaDevices.getUserMedia({
-
-              video: {
-                facingMode: "environment"
-              },
-
-              audio: false
-
-            });
-
-        }
-
-
-        video.srcObject = stream;
-
-        await video.play();
-
-
-        start.style.display = "none";
-
-        shutter.style.display = "block";
-
-
-        resizeCanvas();
-
-
-        topBar.textContent =
-          "Memuat hand tracking...";
-
-
-        await createHandTracker();
-
-
-        topBar.textContent =
-          "Kamera belakang aktif";
-
-
-        requestAnimationFrame(loop);
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        topBar.textContent =
-          "❌ Kamera gagal dibuka";
-
-        instruction.textContent =
-          "Izinkan akses kamera dan gunakan HTTPS/localhost.";
+        throw new Error(
+          "Browser tidak mendukung akses kamera."
+        );
 
       }
 
     }
 
 
-    // =========================================================
-    // MEDIAPIPE
-    // =========================================================
+    // =====================================================
+    // START BUTTON
+    // =====================================================
 
-    async function createHandTracker() {
-
-      const vision =
-        await FilesetResolver.forVisionTasks(
-
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-
-        );
+    start.addEventListener(
+      "click",
+      startCamera
+    );
 
 
-      handLandmarker =
-        await HandLandmarker.createFromOptions(
+    // =====================================================
+    // START CAMERA
+    // =====================================================
 
-          vision,
+    async function startCamera() {
 
-          {
+      if (processing) {
+        return;
+      }
 
-            baseOptions: {
+      processing = true;
 
-              modelAssetPath:
-                "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
 
-              delegate: "GPU"
+      try {
 
+        checkCameraSupport();
+
+
+        topBar.textContent =
+          "Meminta izin kamera...";
+
+
+        instruction.textContent =
+          "Silakan tekan IZINKAN jika muncul";
+
+
+        /*
+         * ===================================================
+         * KAMERA BELAKANG
+         * ===================================================
+         *
+         * "environment" = kamera belakang.
+         *
+         * Kita menggunakan "ideal", bukan "exact",
+         * supaya beberapa HP Android tidak langsung error.
+         */
+
+        const constraints = {
+
+          video: {
+
+            facingMode: {
+              ideal: "environment"
             },
 
-            runningMode: "VIDEO",
+            width: {
+              ideal: 1280
+            },
 
-            numHands: 2,
+            height: {
+              ideal: 720
+            }
 
-            minHandDetectionConfidence: 0.5,
+          },
 
-            minHandPresenceConfidence: 0.5,
+          audio: false
 
-            minTrackingConfidence: 0.5
+        };
 
-          }
 
+        console.log(
+          "Meminta akses kamera..."
         );
+
+
+        // ===================================================
+        // INI YANG MEMUNCULKAN PERMISSION
+        // ===================================================
+
+        stream =
+          await navigator
+            .mediaDevices
+            .getUserMedia(
+              constraints
+            );
+
+
+        console.log(
+          "Kamera berhasil:",
+          stream
+        );
+
+
+        // ===================================================
+        // PASANG CAMERA
+        // ===================================================
+
+        video.srcObject =
+          stream;
+
+
+        await video.play();
+
+
+        // ===================================================
+        // UI
+        // ===================================================
+
+        start.style.display =
+          "none";
+
+        shutter.style.display =
+          "block";
+
+
+        resizeCanvas();
+
+
+        topBar.textContent =
+          "📷 Kamera belakang aktif";
+
+
+        instruction.textContent =
+          "Memuat hand tracking...";
+
+
+        // ===================================================
+        // LOAD MEDIAPIPE
+        // ===================================================
+
+        await loadMediaPipe();
+
+
+        topBar.textContent =
+          "✋ Hand tracking aktif";
+
+
+        instruction.textContent =
+          "Buat gesture L dengan kedua tangan";
+
+
+        processing = false;
+
+
+        requestAnimationFrame(
+          loop
+        );
+
+
+      } catch (error) {
+
+        processing = false;
+
+
+        console.error(
+          "CAMERA ERROR:",
+          error
+        );
+
+
+        showError(
+          error
+        );
+
+      }
 
     }
 
 
-    // =========================================================
-    // CANVAS
-    // =========================================================
+    // =====================================================
+    // ERROR
+    // =====================================================
+
+    function showError(error) {
+
+      let message =
+        error.message ||
+        "Terjadi kesalahan.";
+
+
+      if (
+        error.name ===
+        "NotAllowedError"
+      ) {
+
+        message =
+          "Akses kamera ditolak. " +
+          "Izinkan kamera untuk situs ini " +
+          "di pengaturan browser.";
+
+      }
+
+
+      else if (
+        error.name ===
+        "NotFoundError"
+      ) {
+
+        message =
+          "Kamera tidak ditemukan.";
+
+      }
+
+
+      else if (
+        error.name ===
+        "NotReadableError"
+      ) {
+
+        message =
+          "Kamera sedang digunakan oleh aplikasi lain.";
+
+      }
+
+
+      else if (
+        error.name ===
+        "SecurityError"
+      ) {
+
+        message =
+          "Browser memblokir akses kamera. " +
+          "Pastikan situs menggunakan HTTPS.";
+
+      }
+
+
+      topBar.textContent =
+        "❌ Kamera gagal";
+
+
+      instruction.textContent =
+        message;
+
+
+      errorText.textContent =
+        `${error.name || "Error"}: ${message}`;
+
+
+      errorBox.style.display =
+        "block";
+
+    }
+
+
+    // =====================================================
+    // LOAD MEDIAPIPE
+    // =====================================================
+
+    async function loadMediaPipe() {
+
+      try {
+
+        console.log(
+          "Loading MediaPipe..."
+        );
+
+
+        /*
+         * Dynamic import.
+         *
+         * Kamera sudah aktif terlebih dahulu,
+         * jadi kalau MediaPipe gagal,
+         * permission kamera tetap sudah berjalan.
+         */
+
+        const module =
+          await import(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22"
+          );
+
+
+        const HandLandmarker =
+          module.HandLandmarker;
+
+        const FilesetResolver =
+          module.FilesetResolver;
+
+
+        if (
+          !HandLandmarker ||
+          !FilesetResolver
+        ) {
+
+          throw new Error(
+            "MediaPipe HandLandmarker gagal dimuat."
+          );
+
+        }
+
+
+        const vision =
+          await FilesetResolver
+            .forVisionTasks(
+              "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+            );
+
+
+        handLandmarker =
+          await HandLandmarker
+            .createFromOptions(
+              vision,
+              {
+
+                baseOptions: {
+
+                  modelAssetPath:
+                    "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+
+                  delegate:
+                    "GPU"
+
+                },
+
+
+                runningMode:
+                  "VIDEO",
+
+
+                numHands:
+                  2,
+
+
+                minHandDetectionConfidence:
+                  0.5,
+
+
+                minHandPresenceConfidence:
+                  0.5,
+
+
+                minTrackingConfidence:
+                  0.5
+
+              }
+            );
+
+
+        console.log(
+          "MediaPipe berhasil."
+        );
+
+      }
+
+
+      catch (error) {
+
+        console.error(
+          "MEDIAPIPE ERROR:",
+          error
+        );
+
+
+        throw new Error(
+          "Hand tracking gagal dimuat. " +
+          error.message
+        );
+
+      }
+
+    }
+
+
+    // =====================================================
+    // RESIZE CANVAS
+    // =====================================================
 
     function resizeCanvas() {
 
@@ -402,9 +902,9 @@
     );
 
 
-    // =========================================================
+    // =====================================================
     // MAIN LOOP
-    // =========================================================
+    // =====================================================
 
     function loop() {
 
@@ -413,7 +913,9 @@
         video.readyState < 2
       ) {
 
-        requestAnimationFrame(loop);
+        requestAnimationFrame(
+          loop
+        );
 
         return;
 
@@ -430,50 +932,61 @@
 
 
         const results =
-          handLandmarker.detectForVideo(
-
-            video,
-
-            performance.now()
-
-          );
+          handLandmarker
+            .detectForVideo(
+              video,
+              performance.now()
+            );
 
 
-        processHands(results);
+        processHands(
+          results
+        );
 
       }
 
 
-      requestAnimationFrame(loop);
+      requestAnimationFrame(
+        loop
+      );
 
     }
 
 
-    // =========================================================
-    // HITUNG JARAK
-    // =========================================================
+    // =====================================================
+    // DISTANCE
+    // =====================================================
 
     function distance(a, b) {
 
       return Math.sqrt(
 
-        Math.pow(a.x - b.x, 2) +
+        Math.pow(
+          a.x - b.x,
+          2
+        )
 
-        Math.pow(a.y - b.y, 2)
+        +
+
+        Math.pow(
+          a.y - b.y,
+          2
+        )
 
       );
 
     }
 
 
-    // =========================================================
+    // =====================================================
     // DETEKSI GESTURE L
-    // =========================================================
+    // =====================================================
 
     function isLGesture(hand) {
 
+
       /*
-       * MediaPipe landmark:
+       * MediaPipe landmarks:
        *
        * 4  = ujung ibu jari
        * 8  = ujung telunjuk
@@ -482,10 +995,10 @@
        * 16 = ujung jari manis
        * 20 = ujung kelingking
        *
-       * 6  = ruas telunjuk
-       * 10 = ruas tengah
-       * 14 = ruas manis
-       * 18 = ruas kelingking
+       * 5  = pangkal telunjuk
+       * 9  = pangkal jari tengah
+       * 13 = pangkal jari manis
+       * 17 = pangkal kelingking
        */
 
 
@@ -518,45 +1031,53 @@
         hand[17];
 
 
-      // ---------------------------------------------
-      // TELUNJUK HARUS TERBUKA
-      // ---------------------------------------------
+      // ===================================================
+      // TELUNJUK TERBUKA
+      // ===================================================
 
       const indexExtended =
         distance(
           indexTip,
           indexBase
-        ) > 0.15;
+        ) > 0.14;
 
 
-      // ---------------------------------------------
-      // JARI LAIN HARUS CENDERUNG TERLIPAT
-      // ---------------------------------------------
+      // ===================================================
+      // JARI TENGAH DITEKUK
+      // ===================================================
 
       const middleFolded =
         distance(
           middleTip,
           middleBase
-        ) < 0.13;
+        ) < 0.16;
 
+
+      // ===================================================
+      // JARI MANIS DITEKUK
+      // ===================================================
 
       const ringFolded =
         distance(
           ringTip,
           ringBase
-        ) < 0.13;
+        ) < 0.16;
 
+
+      // ===================================================
+      // KELINGKING DITEKUK
+      // ===================================================
 
       const pinkyFolded =
         distance(
           pinkyTip,
           pinkyBase
-        ) < 0.13;
+        ) < 0.16;
 
 
-      // ---------------------------------------------
-      // IBU JARI HARUS TERBUKA KE SAMPING
-      // ---------------------------------------------
+      // ===================================================
+      // IBU JARI TERBUKA
+      // ===================================================
 
       const thumbOpen =
         distance(
@@ -582,78 +1103,88 @@
     }
 
 
-    // =========================================================
+    // =====================================================
     // PROCESS HANDS
-    // =========================================================
+    // =====================================================
 
     function processHands(results) {
 
-      ctx.clearRect(
 
+      ctx.clearRect(
         0,
         0,
         canvas.width,
         canvas.height
-
       );
 
+
+      // ===================================================
+      // TIDAK ADA TANGAN
+      // ===================================================
 
       if (
         !results.landmarks ||
         results.landmarks.length === 0
       ) {
 
-        frameActive = false;
+        frameActive =
+          false;
+
 
         instruction.textContent =
           "✋ Tunjukkan kedua tangan";
+
 
         return;
 
       }
 
 
-      // ---------------------------------------------
+      // ===================================================
       // GAMBAR LANDMARK
-      // ---------------------------------------------
+      // ===================================================
 
-      drawHands(results);
+      drawHands(
+        results
+      );
 
 
-      // ---------------------------------------------
-      // CARI TANGAN YANG MEMBENTUK L
-      // ---------------------------------------------
+      // ===================================================
+      // CARI TANGAN L
+      // ===================================================
 
       const LHands = [];
 
 
       for (
-        const hand of results.landmarks
+        const hand
+        of results.landmarks
       ) {
 
         if (
           isLGesture(hand)
         ) {
 
-          LHands.push(hand);
+          LHands.push(
+            hand
+          );
 
         }
 
       }
 
 
-      // =====================================================
-      // DUA TANGAN MEMBENTUK L
-      // =====================================================
+      // ===================================================
+      // DUA TANGAN L
+      // ===================================================
 
-      if (LHands.length >= 2) {
+      if (
+        LHands.length >= 2
+      ) {
 
         createFrame(
-
           LHands[0],
-
           LHands[1]
-
         );
 
         return;
@@ -661,11 +1192,13 @@
       }
 
 
-      // =====================================================
-      // SATU TANGAN
-      // =====================================================
+      // ===================================================
+      // SATU / BUKAN L
+      // ===================================================
 
-      frameActive = false;
+      frameActive =
+        false;
+
 
       instruction.textContent =
         "🖐️ Buat gesture L dengan kedua tangan";
@@ -673,18 +1206,26 @@
     }
 
 
-    // =========================================================
-    // GAMBAR LANDMARK
-    // =========================================================
+    // =====================================================
+    // DRAW LANDMARK
+    // =====================================================
 
     function drawHands(results) {
 
+
       for (
-        const hand of results.landmarks
+        const hand
+        of results.landmarks
       ) {
 
+
+        // ===============================================
+        // TITIK
+        // ===============================================
+
         for (
-          const point of hand
+          const point
+          of hand
         ) {
 
           const x =
@@ -698,6 +1239,7 @@
 
           ctx.beginPath();
 
+
           ctx.arc(
             x,
             y,
@@ -708,47 +1250,104 @@
 
 
           ctx.fillStyle =
-            "rgba(255,255,255,0.8)";
+            "rgba(255,255,255,0.85)";
+
 
           ctx.fill();
 
         }
+
+
+        // ===============================================
+        // GARIS IBU JARI -> TELUNJUK
+        // ===============================================
+
+        const thumb =
+          getPoint(
+            hand[4]
+          );
+
+        const index =
+          getPoint(
+            hand[8]
+          );
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          thumb.x,
+          thumb.y
+        );
+
+        ctx.lineTo(
+          index.x,
+          index.y
+        );
+
+
+        ctx.strokeStyle =
+          "rgba(0,255,136,0.8)";
+
+        ctx.lineWidth = 3;
+
+        ctx.stroke();
 
       }
 
     }
 
 
-    // =========================================================
-    // BUAT FRAME
-    // =========================================================
+    // =====================================================
+    // CREATE FRAME
+    // =====================================================
 
     function createFrame(
       hand1,
       hand2
     ) {
 
+
       /*
-       * Kita menggunakan ujung telunjuk
-       * sebagai titik atas frame.
+       * Tangan pertama:
        *
-       * Kemudian ujung ibu jari sebagai
-       * titik bawah frame.
+       * index = salah satu sudut
+       * thumb = sudut lainnya
+       *
+       * Tangan kedua:
+       *
+       * index = sudut
+       * thumb = sudut
        */
 
 
       const p1 =
-        getPoint(hand1[8]);
+        getPoint(
+          hand1[8]
+        );
+
 
       const p2 =
-        getPoint(hand2[8]);
+        getPoint(
+          hand2[8]
+        );
+
 
       const p3 =
-        getPoint(hand2[4]);
+        getPoint(
+          hand2[4]
+        );
+
 
       const p4 =
-        getPoint(hand1[4]);
+        getPoint(
+          hand1[4]
+        );
 
+
+      // ===================================================
+      // BATAS FRAME
+      // ===================================================
 
       const minX =
         Math.min(
@@ -789,113 +1388,228 @@
       const width =
         maxX - minX;
 
+
       const height =
         maxY - minY;
 
 
-      // Frame terlalu kecil
+      // ===================================================
+      // FRAME TERLALU KECIL
+      // ===================================================
+
       if (
-        width < 80 ||
-        height < 80
+        width < 100 ||
+        height < 100
       ) {
+
+        frameActive =
+          false;
+
 
         instruction.textContent =
           "↔️ Jauhkan kedua tangan";
+
 
         return;
 
       }
 
 
-      frameActive = true;
+      // ===================================================
+      // FRAME AKTIF
+      // ===================================================
+
+      frameActive =
+        true;
 
 
-      // =====================================================
-      // FRAME
-      // =====================================================
+      // ===================================================
+      // AREA FRAME
+      // ===================================================
 
       ctx.beginPath();
+
 
       ctx.moveTo(
         p1.x,
         p1.y
       );
 
+
       ctx.lineTo(
         p2.x,
         p2.y
       );
+
 
       ctx.lineTo(
         p3.x,
         p3.y
       );
 
+
       ctx.lineTo(
         p4.x,
         p4.y
       );
 
+
       ctx.closePath();
 
 
-      /*
-       * Frame hijau
-       */
+      // ===================================================
+      // FRAME GLOW
+      // ===================================================
 
       ctx.strokeStyle =
         "#00ff88";
 
-      ctx.lineWidth = 5;
 
-      ctx.shadowBlur = 20;
+      ctx.lineWidth =
+        5;
+
+
+      ctx.shadowBlur =
+        20;
+
 
       ctx.shadowColor =
         "#00ff88";
 
+
       ctx.stroke();
 
 
-      ctx.shadowBlur = 0;
+      ctx.shadowBlur =
+        0;
 
 
-      // =====================================================
-      // KOTAK TENGAH
-      // =====================================================
-
-      const centerX =
-        (minX + maxX) / 2;
-
-      const centerY =
-        (minY + maxY) / 2;
-
+      // ===================================================
+      // AREA TRANSPARAN
+      // ===================================================
 
       ctx.fillStyle =
         "rgba(0,255,136,0.08)";
 
-      ctx.fillRect(
-        minX,
-        minY,
-        width,
-        height
+
+      ctx.fill();
+
+
+      // ===================================================
+      // CORNER MARKERS
+      // ===================================================
+
+      drawCorner(
+        p1.x,
+        p1.y,
+        25
       );
 
 
-      // =====================================================
-      // INFO
-      // =====================================================
+      drawCorner(
+        p2.x,
+        p2.y,
+        25
+      );
+
+
+      drawCorner(
+        p3.x,
+        p3.y,
+        25
+      );
+
+
+      drawCorner(
+        p4.x,
+        p4.y,
+        25
+      );
+
+
+      // ===================================================
+      // STATUS
+      // ===================================================
 
       instruction.textContent =
-        "🟢 FRAME AKTIF — tekan shutter 📸";
+        "🟢 FRAME AKTIF — tekan tombol 📸";
 
     }
 
 
-    // =========================================================
-    // KONVERSI POINT
-    // =========================================================
+    // =====================================================
+    // CORNER
+    // =====================================================
 
-    function getPoint(point) {
+    function drawCorner(
+      x,
+      y,
+      size
+    ) {
+
+      ctx.beginPath();
+
+      ctx.arc(
+        x,
+        y,
+        7,
+        0,
+        Math.PI * 2
+      );
+
+
+      ctx.fillStyle =
+        "#ffffff";
+
+
+      ctx.shadowBlur =
+        10;
+
+
+      ctx.shadowColor =
+        "#00ff88";
+
+
+      ctx.fill();
+
+
+      ctx.shadowBlur =
+        0;
+
+
+      // lingkaran luar
+
+      ctx.beginPath();
+
+      ctx.arc(
+        x,
+        y,
+        size / 2,
+        0,
+        Math.PI * 2
+      );
+
+
+      ctx.strokeStyle =
+        "rgba(255,255,255,0.7)";
+
+
+      ctx.lineWidth =
+        2;
+
+
+      ctx.stroke();
+
+    }
+
+
+    // =====================================================
+    // GET POINT
+    // =====================================================
+
+    function getPoint(
+      point
+    ) {
 
       return {
 
@@ -912,76 +1626,101 @@
     }
 
 
-    // =========================================================
-    // FOTO
-    // =========================================================
+    // =====================================================
+    // SHUTTER
+    // =====================================================
+
+    shutter.addEventListener(
+      "click",
+      takePhoto
+    );
+
+
+    // =====================================================
+    // TAKE PHOTO
+    // =====================================================
 
     function takePhoto() {
 
-      if (!frameActive) {
+
+      if (
+        !stream
+      ) {
 
         instruction.textContent =
-          "Buat frame dengan kedua tangan dulu!";
+          "📷 Aktifkan kamera terlebih dahulu";
 
         return;
 
       }
 
 
-      // =====================================================
+      // ===================================================
       // FLASH
-      // =====================================================
+      // ===================================================
 
-      flash.style.opacity = "1";
-
-
-      setTimeout(() => {
-
-        flash.style.opacity = "0";
-
-      }, 120);
+      flash.style.opacity =
+        "1";
 
 
-      // =====================================================
+      setTimeout(
+        () => {
+
+          flash.style.opacity =
+            "0";
+
+        },
+        120
+      );
+
+
+      // ===================================================
       // CANVAS FOTO
-      // =====================================================
+      // ===================================================
 
       const photo =
-        document.createElement("canvas");
+        document.createElement(
+          "canvas"
+        );
+
 
       photo.width =
         video.videoWidth;
+
 
       photo.height =
         video.videoHeight;
 
 
       const photoCtx =
-        photo.getContext("2d");
+        photo.getContext(
+          "2d"
+        );
 
 
       photoCtx.drawImage(
-
         video,
-
         0,
         0,
-
         photo.width,
         photo.height
-
       );
 
 
-      // =====================================================
-      // DOWNLOAD
-      // =====================================================
+      // ===================================================
+      // SAVE
+      // ===================================================
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
+
 
       link.download =
-        `gesture-photo-${Date.now()}.jpg`;
+        "gesture-photo-" +
+        Date.now() +
+        ".jpg";
 
 
       link.href =
@@ -1000,22 +1739,9 @@
     }
 
 
-    // =========================================================
-    // EVENT
-    // =========================================================
-
-    start.addEventListener(
-      "click",
-      startCamera
-    );
-
-
-    shutter.addEventListener(
-      "click",
-      takePhoto
-    );
-
   </script>
 
+
 </body>
+
 </html>
