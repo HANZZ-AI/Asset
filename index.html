@@ -1,425 +1,880 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, user-scalable=no"
->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
-<title>Hand AR Frame</title>
+  <meta name="theme-color" content="#000000">
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <title>Hand Frame AR</title>
 
-html,
-body {
-  margin: 0;
-  padding: 0;
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  width: 100%;
-  height: 100%;
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
 
-  overflow: hidden;
+    /* =========================
+       CAMERA
+    ========================= */
 
-  background: #000;
+    #camera {
+      position: fixed;
+      inset: 0;
 
-  font-family:
-    Arial,
-    sans-serif;
-}
+      width: 100%;
+      height: 100%;
 
-/* CAMERA */
+      object-fit: cover;
 
-#video {
-  position: fixed;
+      background: #000;
 
-  inset: 0;
+      z-index: 1;
+    }
 
-  width: 100%;
-  height: 100%;
+    /* =========================
+       EFFECT CANVAS
+    ========================= */
 
-  object-fit: cover;
+    #effectCanvas {
+      position: fixed;
+      inset: 0;
 
-  z-index: 1;
-}
+      width: 100%;
+      height: 100%;
 
+      pointer-events: none;
 
-/* EFFECT CANVAS */
+      z-index: 5;
+    }
 
-#canvas {
-  position: fixed;
+    /* =========================
+       UI
+    ========================= */
 
-  inset: 0;
+    #topBar {
+      position: fixed;
 
-  width: 100%;
-  height: 100%;
+      top: 18px;
+      left: 50%;
 
-  z-index: 5;
+      transform: translateX(-50%);
 
-  pointer-events: none;
-}
+      z-index: 20;
 
+      padding: 10px 18px;
 
-/* START */
+      border-radius: 999px;
 
-#start {
-  position: fixed;
+      background: rgba(0, 0, 0, 0.55);
 
-  left: 50%;
-  top: 50%;
+      color: white;
 
-  transform:
-    translate(-50%, -50%);
+      font-size: 14px;
 
-  padding: 18px 28px;
+      backdrop-filter: blur(10px);
 
-  border: none;
+      white-space: nowrap;
+    }
 
-  border-radius: 18px;
+    #startButton {
+      position: fixed;
 
-  background: white;
+      left: 50%;
+      top: 50%;
 
-  color: black;
+      transform: translate(-50%, -50%);
 
-  font-size: 17px;
+      z-index: 30;
 
-  font-weight: bold;
+      border: none;
 
-  z-index: 50;
-}
+      padding: 18px 26px;
 
+      border-radius: 18px;
 
-/* STATUS */
+      background: white;
 
-#status {
-  position: fixed;
+      color: #111;
 
-  top: 20px;
-  left: 50%;
+      font-size: 17px;
 
-  transform:
-    translateX(-50%);
+      font-weight: bold;
 
-  padding: 10px 18px;
+      box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.5);
 
-  border-radius: 30px;
+      cursor: pointer;
+    }
 
-  color: white;
+    #startButton:active {
+      transform:
+        translate(-50%, -50%)
+        scale(0.96);
+    }
 
-  background:
-    rgba(0,0,0,.6);
+    #instruction {
+      position: fixed;
 
-  backdrop-filter:
-    blur(10px);
+      left: 50%;
+      bottom: 100px;
 
-  z-index: 30;
+      transform: translateX(-50%);
 
-  white-space: nowrap;
-}
+      width: 90%;
 
+      z-index: 20;
 
-/* INSTRUCTION */
+      text-align: center;
 
-#instruction {
-  position: fixed;
+      color: white;
 
-  left: 50%;
-  bottom: 95px;
+      font-size: 15px;
 
-  transform:
-    translateX(-50%);
+      text-shadow:
+        0 2px 8px #000;
+    }
 
-  width: 90%;
+    /* =========================
+       SHUTTER
+    ========================= */
 
-  text-align: center;
+    #shutter {
+      position: fixed;
 
-  color: white;
+      left: 50%;
+      bottom: 22px;
 
-  font-size: 15px;
+      transform: translateX(-50%);
 
-  text-shadow:
-    0 2px 8px black;
+      width: 68px;
+      height: 68px;
 
-  z-index: 30;
-}
+      border-radius: 50%;
 
+      border: 5px solid white;
 
-/* PHOTO BUTTON */
+      background: rgba(255,255,255,0.15);
 
-#photo {
-  position: fixed;
+      z-index: 25;
 
-  left: 50%;
-  bottom: 20px;
+      display: none;
 
-  transform:
-    translateX(-50%);
+      padding: 0;
+    }
 
-  width: 65px;
-  height: 65px;
+    #shutter::after {
+      content: "";
 
-  border-radius: 50%;
+      position: absolute;
 
-  border: 5px solid white;
+      left: 50%;
+      top: 50%;
 
-  background: rgba(255,255,255,.2);
+      width: 48px;
+      height: 48px;
 
-  display: none;
+      transform:
+        translate(-50%, -50%);
 
-  z-index: 40;
-}
+      border-radius: 50%;
 
-#photo::after {
-  content: "";
+      background: white;
+    }
 
-  position: absolute;
+    /* =========================
+       ERROR
+    ========================= */
 
-  width: 45px;
-  height: 45px;
+    #errorBox {
+      position: fixed;
 
-  left: 50%;
-  top: 50%;
+      left: 50%;
+      top: 50%;
 
-  transform:
-    translate(-50%,-50%);
+      transform: translate(-50%, -50%);
 
-  border-radius: 50%;
+      width: calc(100% - 40px);
+      max-width: 420px;
 
-  background: white;
-}
+      z-index: 100;
 
+      display: none;
 
-/* ERROR */
+      padding: 24px;
 
-#error {
-  position: fixed;
+      border-radius: 22px;
 
-  left: 50%;
-  top: 50%;
+      background:
+        rgba(15,15,15,0.96);
 
-  transform:
-    translate(-50%,-50%);
+      color: white;
 
-  width: 90%;
-  max-width: 450px;
+      text-align: center;
 
-  padding: 25px;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.7);
+    }
 
-  border-radius: 20px;
+    #errorBox h2 {
+      margin-top: 0;
+    }
 
-  background:
-    rgba(20,20,20,.95);
+    #errorText {
+      font-size: 14px;
+      line-height: 1.5;
 
-  color: white;
+      color: #ddd;
 
-  text-align: center;
+      word-break: break-word;
+    }
 
-  display: none;
+    #retryButton {
+      border: none;
 
-  z-index: 100;
-}
-</style>
+      padding: 12px 22px;
+
+      border-radius: 12px;
+
+      background: white;
+
+      color: black;
+
+      font-weight: bold;
+    }
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    #loading {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 90;
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      flex-direction: column;
+
+      background:
+        rgba(0,0,0,0.65);
+
+      color: white;
+
+      backdrop-filter: blur(8px);
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+
+      border: 4px solid rgba(255,255,255,0.25);
+
+      border-top-color: white;
+
+      border-radius: 50%;
+
+      animation:
+        spin 0.8s linear infinite;
+
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
-
 
 <body>
 
-
-<video
-  id="video"
-  autoplay
-  playsinline
-  muted
-></video>
-
-
-<canvas id="canvas"></canvas>
+  <!-- CAMERA -->
+  <video
+    id="camera"
+    autoplay
+    playsinline
+    muted
+  ></video>
 
 
-<div id="status">
-  Kamera belum aktif
-</div>
+  <!-- EFFECT -->
+  <canvas id="effectCanvas"></canvas>
 
 
-<div id="instruction">
-  Tekan tombol untuk memulai
-</div>
+  <!-- STATUS -->
+  <div id="topBar">
+    Kamera belum aktif
+  </div>
 
 
-<button id="start">
-  📷 Aktifkan Kamera Belakang
-</button>
-
-
-<button id="photo"></button>
-
-
-<div id="error">
-  <h2>Kamera gagal</h2>
-
-  <p id="errorText"></p>
-
-  <button onclick="location.reload()">
-    Coba Lagi
+  <!-- START -->
+  <button id="startButton">
+    📷 Aktifkan Kamera Belakang
   </button>
-</div>
 
 
-<script type="module">
-
-/* =====================================================
-   MEDIAPIPE
-===================================================== */
-
-import {
-  HandLandmarker,
-  FilesetResolver
-} from
-"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm";
+  <!-- INSTRUCTION -->
+  <div id="instruction">
+    Buat frame dengan kedua tangan
+  </div>
 
 
-/* =====================================================
-   ELEMENT
-===================================================== */
-
-const video =
-  document.getElementById("video");
-
-const canvas =
-  document.getElementById("canvas");
-
-const ctx =
-  canvas.getContext("2d");
-
-const start =
-  document.getElementById("start");
-
-const photo =
-  document.getElementById("photo");
-
-const status =
-  document.getElementById("status");
-
-const instruction =
-  document.getElementById("instruction");
-
-const error =
-  document.getElementById("error");
-
-const errorText =
-  document.getElementById("errorText");
+  <!-- SHUTTER -->
+  <button id="shutter"></button>
 
 
-/* =====================================================
-   VARIABLES
-===================================================== */
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="spinner"></div>
 
-let stream = null;
-
-let tracker = null;
-
-let lastTime = -1;
-
-let frame = null;
-
-let effectTime = 0;
+    <div id="loadingText">
+      Memuat Hand Tracking...
+    </div>
+  </div>
 
 
-/* =====================================================
-   START CAMERA
-===================================================== */
+  <!-- ERROR -->
+  <div id="errorBox">
 
-start.onclick =
-async function() {
+    <h2>❌ Terjadi masalah</h2>
 
-  try {
+    <div id="errorText"></div>
 
-    status.innerText =
-      "Meminta izin kamera...";
+    <br>
+
+    <button id="retryButton">
+      Coba Lagi
+    </button>
+
+  </div>
 
 
-    /*
-      KAMERA BELAKANG
-    */
+  <script type="module">
 
-    stream =
-      await navigator
-        .mediaDevices
-        .getUserMedia({
+    /* =====================================================
+       KONFIGURASI
+    ===================================================== */
 
-          video: {
+    const MP_VERSION = "0.10.18";
 
-            facingMode: {
-              ideal: "environment"
+    const MP_PACKAGE =
+      `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`;
+
+    const WASM_URL =
+      `${MP_PACKAGE}/wasm`;
+
+    const MODEL_URL =
+      "https://storage.googleapis.com/mediapipe-models/" +
+      "hand_landmarker/hand_landmarker/float16/1/" +
+      "hand_landmarker.task";
+
+
+    /* =====================================================
+       ELEMENT
+    ===================================================== */
+
+    const video =
+      document.getElementById("camera");
+
+    const canvas =
+      document.getElementById("effectCanvas");
+
+    const ctx =
+      canvas.getContext("2d");
+
+    const startButton =
+      document.getElementById("startButton");
+
+    const shutter =
+      document.getElementById("shutter");
+
+    const status =
+      document.getElementById("topBar");
+
+    const instruction =
+      document.getElementById("instruction");
+
+    const loading =
+      document.getElementById("loading");
+
+    const loadingText =
+      document.getElementById("loadingText");
+
+    const errorBox =
+      document.getElementById("errorBox");
+
+    const errorText =
+      document.getElementById("errorText");
+
+    const retryButton =
+      document.getElementById("retryButton");
+
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
+    let handLandmarker = null;
+
+    let cameraStream = null;
+
+    let lastVideoTime = -1;
+
+    let currentFrame = null;
+
+    let animationTime = 0;
+
+    let processing = false;
+
+
+    /* =====================================================
+       RESIZE
+    ===================================================== */
+
+    function resizeCanvas() {
+
+      canvas.width =
+        window.innerWidth;
+
+      canvas.height =
+        window.innerHeight;
+
+    }
+
+    resizeCanvas();
+
+    window.addEventListener(
+      "resize",
+      resizeCanvas
+    );
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    function showError(message) {
+
+      console.error(message);
+
+      errorText.textContent =
+        message;
+
+      errorBox.style.display =
+        "block";
+
+    }
+
+
+    function hideError() {
+
+      errorBox.style.display =
+        "none";
+
+    }
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    startButton.addEventListener(
+      "click",
+      startCamera
+    );
+
+
+    retryButton.addEventListener(
+      "click",
+      () => {
+
+        hideError();
+
+        startCamera();
+
+      }
+    );
+
+
+    async function startCamera() {
+
+      if (processing)
+        return;
+
+      processing = true;
+
+      hideError();
+
+      startButton.style.display =
+        "none";
+
+
+      /*
+       =====================================================
+       PENTING:
+
+       KAMERA DIMINTA TERLEBIH DAHULU.
+
+       Jadi MediaPipe tidak bisa mencegah
+       browser menampilkan permission.
+       =====================================================
+      */
+
+      try {
+
+        status.textContent =
+          "Meminta izin kamera...";
+
+
+        if (
+          !navigator.mediaDevices ||
+          !navigator.mediaDevices.getUserMedia
+        ) {
+
+          throw new Error(
+            "Browser tidak mendukung kamera atau website tidak berjalan melalui HTTPS."
+          );
+
+        }
+
+
+        /*
+          KAMERA BELAKANG
+        */
+
+        cameraStream =
+          await navigator.mediaDevices.getUserMedia({
+
+            video: {
+
+              facingMode: {
+                exact: "environment"
+              },
+
+              width: {
+                ideal: 1280
+              },
+
+              height: {
+                ideal: 720
+              }
+
             },
 
-            width: {
-              ideal: 1280
-            },
+            audio: false
 
-            height: {
-              ideal: 720
-            }
-
-          },
-
-          audio: false
-
-        });
+          });
 
 
-    video.srcObject =
-      stream;
+      }
 
+      catch (cameraError) {
 
-    await video.play();
+        /*
+          Kalau exact environment gagal,
+          coba lagi dengan ideal environment.
+        */
 
-
-    start.style.display =
-      "none";
-
-
-    photo.style.display =
-      "block";
-
-
-    resize();
-
-
-    status.innerText =
-      "Memuat Hand Tracking...";
-
-
-    /*
-      LOAD MEDIAPIPE
-    */
-
-    const vision =
-      await FilesetResolver
-        .forVisionTasks(
-
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-
+        console.warn(
+          "Kamera belakang exact gagal:",
+          cameraError
         );
 
 
-    tracker =
-      await HandLandmarker
-        .createFromOptions(
+        try {
 
-          vision,
+          cameraStream =
+            await navigator.mediaDevices.getUserMedia({
 
+              video: {
+
+                facingMode: {
+                  ideal: "environment"
+                },
+
+                width: {
+                  ideal: 1280
+                },
+
+                height: {
+                  ideal: 720
+                }
+
+              },
+
+              audio: false
+
+            });
+
+        }
+
+        catch (secondError) {
+
+          processing = false;
+
+          startButton.style.display =
+            "block";
+
+          status.textContent =
+            "Kamera gagal";
+
+          showError(
+            getCameraErrorMessage(secondError)
+          );
+
+          return;
+
+        }
+
+      }
+
+
+      /*
+       =====================================================
+       KAMERA BERHASIL
+       =====================================================
+      */
+
+      video.srcObject =
+        cameraStream;
+
+
+      try {
+
+        await video.play();
+
+      }
+
+      catch (e) {
+
+        console.warn(
+          "video.play():",
+          e
+        );
+
+      }
+
+
+      status.textContent =
+        "📷 Kamera aktif";
+
+
+      shutter.style.display =
+        "block";
+
+
+      /*
+       =====================================================
+       BARU SEKARANG LOAD MEDIAPIPE
+       =====================================================
+      */
+
+      loading.style.display =
+        "flex";
+
+      loadingText.textContent =
+        "Memuat Hand Tracking...";
+
+
+      try {
+
+        await loadMediaPipe();
+
+      }
+
+      catch (mpError) {
+
+        processing = false;
+
+        loading.style.display =
+          "none";
+
+        status.textContent =
+          "Kamera aktif • Hand Tracking gagal";
+
+        instruction.textContent =
+          "Kamera sudah aktif, tetapi Hand Tracking gagal dimuat.";
+
+        showError(
+          "Kamera berhasil dibuka, tetapi Hand Tracking gagal dimuat.\n\n" +
+          mpError.message
+        );
+
+        return;
+
+      }
+
+
+      loading.style.display =
+        "none";
+
+
+      processing = false;
+
+
+      status.textContent =
+        "🟢 Hand Tracking aktif";
+
+      instruction.textContent =
+        "👐 Arahkan kedua tangan dan bentuk frame";
+
+
+      requestAnimationFrame(
+        detectionLoop
+      );
+
+    }
+
+
+    /* =====================================================
+       CAMERA ERROR MESSAGE
+    ===================================================== */
+
+    function getCameraErrorMessage(error) {
+
+      const name =
+        error?.name || "";
+
+      if (name === "NotAllowedError") {
+
+        return (
+          "Izin kamera ditolak.\n\n" +
+          "Buka pengaturan izin kamera untuk browser " +
+          "dan izinkan website ini menggunakan kamera."
+        );
+
+      }
+
+
+      if (name === "NotFoundError") {
+
+        return (
+          "Kamera tidak ditemukan pada perangkat."
+        );
+
+      }
+
+
+      if (name === "NotReadableError") {
+
+        return (
+          "Kamera sedang digunakan aplikasi lain."
+        );
+
+      }
+
+
+      if (name === "SecurityError") {
+
+        return (
+          "Browser memblokir akses kamera. " +
+          "Pastikan website dibuka melalui HTTPS."
+        );
+
+      }
+
+
+      return (
+        "Kamera tidak dapat dibuka.\n\n" +
+        error.message
+      );
+
+    }
+
+
+    /* =====================================================
+       LOAD MEDIAPIPE
+    ===================================================== */
+
+    async function loadMediaPipe() {
+
+      loadingText.textContent =
+        "Menghubungkan MediaPipe...";
+
+
+      /*
+        Import package yang dipin versinya.
+
+        Bukan @latest.
+      */
+
+      const vision =
+        await import(
+          `${MP_PACKAGE}/vision_bundle.mjs`
+        );
+
+
+      const {
+        HandLandmarker,
+        FilesetResolver
+      } = vision;
+
+
+      if (
+        !HandLandmarker ||
+        !FilesetResolver
+      ) {
+
+        throw new Error(
+          "HandLandmarker atau FilesetResolver tidak tersedia dari MediaPipe."
+        );
+
+      }
+
+
+      loadingText.textContent =
+        "Memuat mesin Hand Tracking...";
+
+
+      const filesetResolver =
+        await FilesetResolver.forVisionTasks(
+          WASM_URL
+        );
+
+
+      loadingText.textContent =
+        "Memuat model tangan...";
+
+
+      handLandmarker =
+        await HandLandmarker.createFromOptions(
+          filesetResolver,
           {
 
             baseOptions: {
 
               modelAssetPath:
+                MODEL_URL,
 
-              "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+              /*
+                GPU lebih cepat,
+                tetapi beberapa HP/browser
+                bisa bermasalah.
+
+                Kita coba GPU dahulu.
+              */
 
               delegate: "GPU"
 
@@ -439,755 +894,817 @@ async function() {
               0.5
 
           }
-
         );
 
 
-    status.innerText =
-      "✋ Hand Tracking Aktif";
+      console.log(
+        "MediaPipe berhasil dimuat."
+      );
+
+    }
 
 
-    instruction.innerText =
-      "Gunakan ibu jari + telunjuk kedua tangan untuk membuat frame";
+    /* =====================================================
+       DETECTION LOOP
+    ===================================================== */
+
+    function detectionLoop() {
+
+      animationTime += 0.025;
 
 
-    requestAnimationFrame(loop);
+      if (
+        handLandmarker &&
+        video.readyState >= 2
+      ) {
 
-  }
+        if (
+          video.currentTime !==
+          lastVideoTime
+        ) {
 
-  catch (e) {
-
-    console.error(e);
-
-    error.style.display =
-      "block";
-
-    errorText.innerText =
-      e.message;
-
-  }
-
-};
+          lastVideoTime =
+            video.currentTime;
 
 
-/* =====================================================
-   RESIZE
-===================================================== */
+          try {
 
-function resize() {
-
-  canvas.width =
-    window.innerWidth;
-
-  canvas.height =
-    window.innerHeight;
-
-}
+            const result =
+              handLandmarker.detectForVideo(
+                video,
+                performance.now()
+              );
 
 
-window.addEventListener(
-  "resize",
-  resize
-);
+            processHands(result);
+
+          }
+
+          catch (e) {
+
+            console.error(
+              "Detection error:",
+              e
+            );
+
+          }
+
+        }
+
+      }
 
 
-/* =====================================================
-   LOOP
-===================================================== */
+      requestAnimationFrame(
+        detectionLoop
+      );
 
-function loop() {
-
-  if (!tracker) {
-
-    requestAnimationFrame(loop);
-
-    return;
-
-  }
+    }
 
 
-  if (
-    video.currentTime !==
-    lastTime
-  ) {
+    /* =====================================================
+       HAND PROCESSING
+    ===================================================== */
 
-    lastTime =
-      video.currentTime;
+    function processHands(result) {
+
+      currentFrame = null;
 
 
-    const result =
-      tracker.detectForVideo(
+      if (
+        !result ||
+        !result.landmarks ||
+        result.landmarks.length < 2
+      ) {
 
-        video,
+        status.textContent =
+          "🟡 Mencari kedua tangan";
 
-        performance.now()
+        instruction.textContent =
+          "Tunjukkan kedua tangan";
 
+        drawEmpty();
+
+        return;
+
+      }
+
+
+      const handA =
+        result.landmarks[0];
+
+      const handB =
+        result.landmarks[1];
+
+
+      /*
+       =====================================================
+       LANDMARK
+
+       4 = ibu jari
+       8 = telunjuk
+       =====================================================
+      */
+
+      const thumbA =
+        normalizedPoint(
+          handA[4]
+        );
+
+      const indexA =
+        normalizedPoint(
+          handA[8]
+        );
+
+      const thumbB =
+        normalizedPoint(
+          handB[4]
+        );
+
+      const indexB =
+        normalizedPoint(
+          handB[8]
+        );
+
+
+      /*
+       =====================================================
+       FRAME DARI EMPAT UJUNG JARI
+       =====================================================
+      */
+
+      const minX =
+        Math.min(
+          thumbA.x,
+          indexA.x,
+          thumbB.x,
+          indexB.x
+        );
+
+      const maxX =
+        Math.max(
+          thumbA.x,
+          indexA.x,
+          thumbB.x,
+          indexB.x
+        );
+
+      const minY =
+        Math.min(
+          thumbA.y,
+          indexA.y,
+          thumbB.y,
+          indexB.y
+        );
+
+      const maxY =
+        Math.max(
+          thumbA.y,
+          indexA.y,
+          thumbB.y,
+          indexB.y
+        );
+
+
+      let x =
+        minX;
+
+      let y =
+        minY;
+
+      let width =
+        maxX - minX;
+
+      let height =
+        maxY - minY;
+
+
+      /*
+       =====================================================
+       MINIMUM FRAME
+       =====================================================
+      */
+
+      if (
+        width < 0.12 ||
+        height < 0.08
+      ) {
+
+        status.textContent =
+          "🟡 Dekatkan kedua tangan";
+
+        instruction.textContent =
+          "Rentangkan kedua tangan sedikit";
+
+        drawEmpty();
+
+        return;
+
+      }
+
+
+      /*
+       =====================================================
+       PADDING
+       =====================================================
+      */
+
+      const paddingX =
+        width * 0.12;
+
+      const paddingY =
+        height * 0.20;
+
+
+      x -= paddingX;
+
+      y -= paddingY;
+
+      width +=
+        paddingX * 2;
+
+      height +=
+        paddingY * 2;
+
+
+      /*
+       =====================================================
+       LIMIT
+       =====================================================
+      */
+
+      x =
+        Math.max(
+          0,
+          x
+        );
+
+      y =
+        Math.max(
+          0,
+          y
+        );
+
+      width =
+        Math.min(
+          1 - x,
+          width
+        );
+
+      height =
+        Math.min(
+          1 - y,
+          height
+        );
+
+
+      currentFrame = {
+
+        x:
+          x *
+          canvas.width,
+
+        y:
+          y *
+          canvas.height,
+
+        width:
+          width *
+          canvas.width,
+
+        height:
+          height *
+          canvas.height
+
+      };
+
+
+      status.textContent =
+        "🟢 FRAME TERDETEKSI";
+
+      instruction.textContent =
+        "✨ Frame aktif — gerakkan tangan";
+
+
+      drawFrame();
+
+    }
+
+
+    /* =====================================================
+       POINT
+    ===================================================== */
+
+    function normalizedPoint(point) {
+
+      return {
+
+        x: point.x,
+
+        y: point.y
+
+      };
+
+    }
+
+
+    /* =====================================================
+       EMPTY
+    ===================================================== */
+
+    function drawEmpty() {
+
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+    }
+
+
+    /* =====================================================
+       DRAW FRAME
+    ===================================================== */
+
+    function drawFrame() {
+
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
       );
 
 
-    process(result);
+      if (!currentFrame)
+        return;
 
-  }
 
+      const {
+        x,
+        y,
+        width,
+        height
+      } = currentFrame;
 
-  effectTime += 0.025;
 
+      /*
+       =====================================================
+       GELAPKAN AREA LUAR
+       =====================================================
+      */
 
-  requestAnimationFrame(loop);
+      ctx.save();
 
-}
 
+      ctx.fillStyle =
+        "rgba(0,0,0,0.42)";
 
-/* =====================================================
-   PROCESS HAND
-===================================================== */
 
-function process(result) {
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
-  frame = null;
 
+      /*
+       =====================================================
+       LUBANG FRAME
+       =====================================================
+      */
 
-  if (
-    !result.landmarks ||
-    result.landmarks.length < 2
-  ) {
+      ctx.globalCompositeOperation =
+        "destination-out";
 
-    instruction.innerText =
-      "👐 Tunjukkan kedua tangan";
 
-    drawNormal();
+      ctx.fillRect(
+        x,
+        y,
+        width,
+        height
+      );
 
-    return;
 
-  }
+      ctx.restore();
 
 
-  const hand1 =
-    result.landmarks[0];
+      /*
+       =====================================================
+       WARNA PSYCHEDELIC
+       =====================================================
+      */
 
-  const hand2 =
-    result.landmarks[1];
+      ctx.save();
 
 
-  /*
-    TITIK YANG DIPAKAI:
+      ctx.beginPath();
 
-    4 = ujung ibu jari
-    8 = ujung telunjuk
-  */
+      ctx.rect(
+        x,
+        y,
+        width,
+        height
+      );
 
+      ctx.clip();
 
-  const a =
-    point(hand1[8]);
 
-  const b =
-    point(hand2[8]);
+      const g =
+        ctx.createLinearGradient(
+          x,
+          y,
+          x + width,
+          y + height
+        );
 
-  const c =
-    point(hand2[4]);
 
-  const d =
-    point(hand1[4]);
+      const hue =
+        (animationTime * 90) % 360;
 
 
-  /*
-    FRAME
-  */
+      g.addColorStop(
+        0,
+        `hsla(${hue},100%,55%,0.38)`
+      );
 
-  const minX =
-    Math.min(
-      a.x,
-      b.x,
-      c.x,
-      d.x
-    );
+      g.addColorStop(
+        0.25,
+        `hsla(${hue + 70},100%,55%,0.38)`
+      );
 
-  const maxX =
-    Math.max(
-      a.x,
-      b.x,
-      c.x,
-      d.x
-    );
+      g.addColorStop(
+        0.5,
+        `hsla(${hue + 150},100%,55%,0.38)`
+      );
 
-  const minY =
-    Math.min(
-      a.y,
-      b.y,
-      c.y,
-      d.y
-    );
+      g.addColorStop(
+        0.75,
+        `hsla(${hue + 230},100%,55%,0.38)`
+      );
 
-  const maxY =
-    Math.max(
-      a.y,
-      b.y,
-      c.y,
-      d.y
-    );
+      g.addColorStop(
+        1,
+        `hsla(${hue + 310},100%,55%,0.38)`
+      );
 
 
-  const width =
-    maxX - minX;
+      ctx.fillStyle =
+        g;
 
-  const height =
-    maxY - minY;
 
+      ctx.fillRect(
+        x,
+        y,
+        width,
+        height
+      );
 
-  /*
-    TERLALU KECIL
-  */
 
-  if (
-    width < 100 ||
-    height < 80
-  ) {
+      /*
+       =====================================================
+       GLITCH LINES
+       =====================================================
+      */
 
-    instruction.innerText =
-      "↔️ Jauhkan tangan sedikit";
+      for (
+        let i = 0;
+        i < 18;
+        i++
+      ) {
 
-    drawNormal();
+        const lineY =
+          y +
+          (
+            (
+              i / 18 +
+              animationTime * 0.03
+            ) % 1
+          ) *
+          height;
 
-    return;
 
-  }
+        const lineHue =
+          (
+            hue +
+            i * 27
+          ) % 360;
 
 
-  frame = {
+        ctx.fillStyle =
+          `hsla(${lineHue},100%,60%,0.16)`;
 
-    x: minX,
 
-    y: minY,
+        ctx.fillRect(
+          x,
+          lineY,
+          width,
+          Math.max(
+            2,
+            height / 40
+          )
+        );
 
-    width: width,
+      }
 
-    height: height,
 
-    points: [
-      a,
-      b,
-      c,
-      d
-    ]
+      /*
+       =====================================================
+       SCAN LINE
+       =====================================================
+      */
 
-  };
+      const scanY =
+        y +
+        (
+          (
+            animationTime * 0.8
+          ) % 1
+        ) *
+        height;
 
 
-  instruction.innerText =
-    "🟢 FRAME TERDETEKSI";
+      ctx.fillStyle =
+        "rgba(255,255,255,0.28)";
 
 
-  drawEffect();
+      ctx.fillRect(
+        x,
+        scanY,
+        width,
+        2
+      );
 
-}
 
+      ctx.restore();
 
-/* =====================================================
-   NORMAL BACKGROUND
-===================================================== */
 
-function drawNormal() {
+      /*
+       =====================================================
+       FRAME BORDER
+       =====================================================
+      */
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+      ctx.save();
 
-}
 
+      ctx.strokeStyle =
+        "rgba(255,255,255,0.95)";
 
-/* =====================================================
-   EFFECT
-===================================================== */
+      ctx.lineWidth =
+        3;
 
-function drawEffect() {
+      ctx.shadowBlur =
+        18;
 
-  /*
-    Kita tidak menggambar ulang kamera
-    ke canvas.
+      ctx.shadowColor =
+        "cyan";
 
-    Video tetap menjadi background.
 
-    Canvas hanya menggambar:
+      ctx.strokeRect(
+        x,
+        y,
+        width,
+        height
+      );
 
-    - dark overlay
-    - frame
-    - efek warna
-  */
 
+      ctx.restore();
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
 
+      /*
+       =====================================================
+       CORNERS
+       =====================================================
+      */
 
-  if (!frame)
-    return;
+      drawCorners(
+        x,
+        y,
+        width,
+        height
+      );
 
+    }
 
-  const {
-    x,
-    y,
-    width,
-    height
-  } = frame;
 
+    /* =====================================================
+       CORNERS
+    ===================================================== */
 
-  /*
-    ==================================================
-    DARK AREA DI LUAR FRAME
-    ==================================================
-  */
-
-  ctx.save();
-
-
-  ctx.fillStyle =
-    "rgba(0,0,0,0.38)";
-
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  /*
-    HAPUS AREA FRAME
-  */
-
-  ctx.globalCompositeOperation =
-    "destination-out";
-
-
-  ctx.fillStyle =
-    "rgba(255,255,255,1)";
-
-
-  ctx.fillRect(
-    x,
-    y,
-    width,
-    height
-  );
-
-
-  ctx.restore();
-
-
-  /*
-    ==================================================
-    WARNA DI DALAM FRAME
-    ==================================================
-  */
-
-
-  ctx.save();
-
-
-  ctx.beginPath();
-
-
-  ctx.rect(
-    x,
-    y,
-    width,
-    height
-  );
-
-
-  ctx.clip();
-
-
-  /*
-    Gradient bergerak
-  */
-
-  const gradient =
-    ctx.createLinearGradient(
-
+    function drawCorners(
       x,
       y,
-
-      x + width,
-      y + height
-
-    );
-
-
-  const t =
-    effectTime;
-
-
-  gradient.addColorStop(
-    0,
-    `hsl(${(t*80)%360},100%,55%)`
-  );
-
-
-  gradient.addColorStop(
-    0.25,
-    `hsl(${(t*80+80)%360},100%,55%)`
-  );
-
-
-  gradient.addColorStop(
-    0.5,
-    `hsl(${(t*80+160)%360},100%,55%)`
-  );
-
-
-  gradient.addColorStop(
-    0.75,
-    `hsl(${(t*80+240)%360},100%,55%)`
-  );
-
-
-  gradient.addColorStop(
-    1,
-    `hsl(${(t*80+320)%360},100%,55%)`
-  );
-
-
-  ctx.globalAlpha =
-    0.35;
-
-
-  ctx.fillStyle =
-    gradient;
-
-
-  ctx.fillRect(
-    x,
-    y,
-    width,
-    height
-  );
-
-
-  /*
-    GARIS WARNA
-  */
-
-  for (
-    let i = 0;
-    i < 12;
-    i++
-  ) {
-
-    const yy =
-      y +
-      (
-        i / 12
-      ) *
-      height;
-
-
-    ctx.fillStyle =
-      `hsla(${(
-        effectTime * 100 +
-        i * 40
-      ) % 360},100%,60%,0.22)`;
-
-
-    ctx.fillRect(
-      x,
-      yy,
       width,
-      height / 12
-    );
+      height
+    ) {
 
-  }
+      const size =
+        Math.min(
+          38,
+          width * 0.15,
+          height * 0.25
+        );
 
 
-  ctx.restore();
+      ctx.save();
 
 
-  /*
-    ==================================================
-    BORDER FRAME
-    ==================================================
-  */
+      ctx.strokeStyle =
+        "white";
 
+      ctx.lineWidth =
+        5;
 
-  ctx.save();
+      ctx.lineCap =
+        "round";
 
+      ctx.shadowBlur =
+        15;
 
-  ctx.strokeStyle =
-    "white";
+      ctx.shadowColor =
+        "#00ffff";
 
 
-  ctx.lineWidth =
-    3;
+      /*
+       TOP LEFT
+      */
 
+      ctx.beginPath();
 
-  ctx.shadowBlur =
-    18;
+      ctx.moveTo(
+        x,
+        y + size
+      );
 
+      ctx.lineTo(
+        x,
+        y
+      );
 
-  ctx.shadowColor =
-    "#00ffff";
+      ctx.lineTo(
+        x + size,
+        y
+      );
 
+      ctx.stroke();
 
-  ctx.strokeRect(
-    x,
-    y,
-    width,
-    height
-  );
 
+      /*
+       TOP RIGHT
+      */
 
-  ctx.restore();
+      ctx.beginPath();
 
+      ctx.moveTo(
+        x + width - size,
+        y
+      );
 
-  /*
-    ==================================================
-    CORNER
-    ==================================================
-  */
+      ctx.lineTo(
+        x + width,
+        y
+      );
 
-  drawCorners(
-    x,
-    y,
-    width,
-    height
-  );
+      ctx.lineTo(
+        x + width,
+        y + size
+      );
 
-}
+      ctx.stroke();
 
 
-/* =====================================================
-   CORNERS
-===================================================== */
+      /*
+       BOTTOM LEFT
+      */
 
-function drawCorners(
-  x,
-  y,
-  w,
-  h
-) {
+      ctx.beginPath();
 
-  const size =
-    Math.min(
-      35,
-      Math.min(w,h) * 0.2
-    );
+      ctx.moveTo(
+        x,
+        y + height - size
+      );
 
+      ctx.lineTo(
+        x,
+        y + height
+      );
 
-  ctx.save();
+      ctx.lineTo(
+        x + size,
+        y + height
+      );
 
+      ctx.stroke();
 
-  ctx.strokeStyle =
-    "white";
 
+      /*
+       BOTTOM RIGHT
+      */
 
-  ctx.lineWidth =
-    5;
+      ctx.beginPath();
 
+      ctx.moveTo(
+        x + width - size,
+        y + height
+      );
 
-  ctx.shadowBlur =
-    15;
+      ctx.lineTo(
+        x + width,
+        y + height
+      );
 
+      ctx.lineTo(
+        x + width,
+        y + height - size
+      );
 
-  ctx.shadowColor =
-    "#00ffff";
+      ctx.stroke();
 
 
-  /*
-    TOP LEFT
-  */
+      ctx.restore();
 
-  ctx.beginPath();
+    }
 
-  ctx.moveTo(
-    x,
-    y + size
-  );
 
-  ctx.lineTo(
-    x,
-    y
-  );
+    /* =====================================================
+       FOTO
+    ===================================================== */
 
-  ctx.lineTo(
-    x + size,
-    y
-  );
-
-  ctx.stroke();
-
-
-  /*
-    TOP RIGHT
-  */
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    x + w - size,
-    y
-  );
-
-  ctx.lineTo(
-    x + w,
-    y
-  );
-
-  ctx.lineTo(
-    x + w,
-    y + size
-  );
-
-  ctx.stroke();
-
-
-  /*
-    BOTTOM LEFT
-  */
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    x,
-    y + h - size
-  );
-
-  ctx.lineTo(
-    x,
-    y + h
-  );
-
-  ctx.lineTo(
-    x + size,
-    y + h
-  );
-
-  ctx.stroke();
-
-
-  /*
-    BOTTOM RIGHT
-  */
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    x + w - size,
-    y + h
-  );
-
-  ctx.lineTo(
-    x + w,
-    y + h
-  );
-
-  ctx.lineTo(
-    x + w,
-    y + h - size
-  );
-
-  ctx.stroke();
-
-
-  ctx.restore();
-
-}
-
-
-/* =====================================================
-   POINT
-===================================================== */
-
-function point(p) {
-
-  return {
-
-    x:
-      p.x *
-      canvas.width,
-
-    y:
-      p.y *
-      canvas.height
-
-  };
-
-}
-
-
-/* =====================================================
-   PHOTO
-===================================================== */
-
-photo.onclick =
-function() {
-
-  /*
-    Buat foto dari kamera.
-  */
-
-  const out =
-    document.createElement("canvas");
-
-
-  out.width =
-    video.videoWidth;
-
-
-  out.height =
-    video.videoHeight;
-
-
-  const octx =
-    out.getContext("2d");
-
-
-  /*
-    Kamera
-  */
-
-  octx.drawImage(
-    video,
-    0,
-    0,
-    out.width,
-    out.height
-  );
-
-
-  /*
-    Download
-  */
-
-  const link =
-    document.createElement("a");
-
-
-  link.download =
-    "hand-frame-" +
-    Date.now() +
-    ".jpg";
-
-
-  link.href =
-    out.toDataURL(
-      "image/jpeg",
-      0.95
+    shutter.addEventListener(
+      "click",
+      takePhoto
     );
 
 
-  link.click();
+    function takePhoto() {
 
-};
+      if (!video.videoWidth)
+        return;
 
-</script>
+
+      const output =
+        document.createElement(
+          "canvas"
+        );
+
+
+      output.width =
+        video.videoWidth;
+
+      output.height =
+        video.videoHeight;
+
+
+      const octx =
+        output.getContext("2d");
+
+
+      /*
+       =====================================================
+       MIRROR TIDAK DIGUNAKAN
+
+       Karena kamera belakang.
+       =====================================================
+      */
+
+      octx.drawImage(
+        video,
+        0,
+        0,
+        output.width,
+        output.height
+      );
+
+
+      /*
+       =====================================================
+       DOWNLOAD FOTO
+       =====================================================
+      */
+
+      const link =
+        document.createElement("a");
+
+
+      link.download =
+        `hand-frame-${Date.now()}.jpg`;
+
+
+      link.href =
+        output.toDataURL(
+          "image/jpeg",
+          0.95
+        );
+
+
+      link.click();
+
+    }
+
+  </script>
 
 </body>
 </html>
