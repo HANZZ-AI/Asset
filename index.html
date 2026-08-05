@@ -1,1710 +1,581 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  >
-
-  <meta name="theme-color" content="#000000">
-
-  <title>Hand Frame AR</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: Arial, sans-serif;
-    }
-
-    /* =========================
-       CAMERA
-    ========================= */
-
-    #camera {
-      position: fixed;
-      inset: 0;
-
-      width: 100%;
-      height: 100%;
-
-      object-fit: cover;
-
-      background: #000;
-
-      z-index: 1;
-    }
-
-    /* =========================
-       EFFECT CANVAS
-    ========================= */
-
-    #effectCanvas {
-      position: fixed;
-      inset: 0;
-
-      width: 100%;
-      height: 100%;
-
-      pointer-events: none;
-
-      z-index: 5;
-    }
-
-    /* =========================
-       UI
-    ========================= */
-
-    #topBar {
-      position: fixed;
-
-      top: 18px;
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      z-index: 20;
-
-      padding: 10px 18px;
-
-      border-radius: 999px;
-
-      background: rgba(0, 0, 0, 0.55);
-
-      color: white;
-
-      font-size: 14px;
-
-      backdrop-filter: blur(10px);
-
-      white-space: nowrap;
-    }
-
-    #startButton {
-      position: fixed;
-
-      left: 50%;
-      top: 50%;
-
-      transform: translate(-50%, -50%);
-
-      z-index: 30;
-
-      border: none;
-
-      padding: 18px 26px;
-
-      border-radius: 18px;
-
-      background: white;
-
-      color: #111;
-
-      font-size: 17px;
-
-      font-weight: bold;
-
-      box-shadow:
-        0 10px 40px rgba(0, 0, 0, 0.5);
-
-      cursor: pointer;
-    }
-
-    #startButton:active {
-      transform:
-        translate(-50%, -50%)
-        scale(0.96);
-    }
-
-    #instruction {
-      position: fixed;
-
-      left: 50%;
-      bottom: 100px;
-
-      transform: translateX(-50%);
-
-      width: 90%;
-
-      z-index: 20;
-
-      text-align: center;
-
-      color: white;
-
-      font-size: 15px;
-
-      text-shadow:
-        0 2px 8px #000;
-    }
-
-    /* =========================
-       SHUTTER
-    ========================= */
-
-    #shutter {
-      position: fixed;
-
-      left: 50%;
-      bottom: 22px;
-
-      transform: translateX(-50%);
-
-      width: 68px;
-      height: 68px;
-
-      border-radius: 50%;
-
-      border: 5px solid white;
-
-      background: rgba(255,255,255,0.15);
-
-      z-index: 25;
-
-      display: none;
-
-      padding: 0;
-    }
-
-    #shutter::after {
-      content: "";
-
-      position: absolute;
-
-      left: 50%;
-      top: 50%;
-
-      width: 48px;
-      height: 48px;
-
-      transform:
-        translate(-50%, -50%);
-
-      border-radius: 50%;
-
-      background: white;
-    }
-
-    /* =========================
-       ERROR
-    ========================= */
-
-    #errorBox {
-      position: fixed;
-
-      left: 50%;
-      top: 50%;
-
-      transform: translate(-50%, -50%);
-
-      width: calc(100% - 40px);
-      max-width: 420px;
-
-      z-index: 100;
-
-      display: none;
-
-      padding: 24px;
-
-      border-radius: 22px;
-
-      background:
-        rgba(15,15,15,0.96);
-
-      color: white;
-
-      text-align: center;
-
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.7);
-    }
-
-    #errorBox h2 {
-      margin-top: 0;
-    }
-
-    #errorText {
-      font-size: 14px;
-      line-height: 1.5;
-
-      color: #ddd;
-
-      word-break: break-word;
-    }
-
-    #retryButton {
-      border: none;
-
-      padding: 12px 22px;
-
-      border-radius: 12px;
-
-      background: white;
-
-      color: black;
-
-      font-weight: bold;
-    }
-
-    /* =========================
-       LOADING
-    ========================= */
-
-    #loading {
-      position: fixed;
-
-      inset: 0;
-
-      z-index: 90;
-
-      display: none;
-
-      align-items: center;
-      justify-content: center;
-
-      flex-direction: column;
-
-      background:
-        rgba(0,0,0,0.65);
-
-      color: white;
-
-      backdrop-filter: blur(8px);
-    }
-
-    .spinner {
-      width: 42px;
-      height: 42px;
-
-      border: 4px solid rgba(255,255,255,0.25);
-
-      border-top-color: white;
-
-      border-radius: 50%;
-
-      animation:
-        spin 0.8s linear infinite;
-
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Card - KYZZ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .camera-section {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        #video {
+            width: 400px;
+            height: 500px;
+            background: #000;
+            border-radius: 15px;
+            transform: scaleX(-1);
+            display: block;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 15px;
+        }
+
+        .info-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            z-index: 20;
+            min-width: 120px;
+        }
+
+        .gesture-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #00ff00;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 20;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .gesture-display.triangle { color: #ff006e; }
+        .gesture-display.peace { color: #00f5ff; }
+        .gesture-display.ok { color: #06ffa5; }
+        .gesture-display.thumbs { color: #ffbe0b; }
+        .gesture-display.rock { color: #fb5607; }
+
+        .card-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .card {
+            width: 280px;
+            height: 160px;
+            background: linear-gradient(45deg, #ff006e, #fb5607, #ffbe0b, #8338ec);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            align-content: center;
+            transition: transform 0.05s ease-out;
+        }
+
+        .card.shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .card.pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .card.spin {
+            animation: spin 0.8s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotateZ(0deg); }
+            25% { transform: translateX(-5px) rotateZ(-1deg); }
+            75% { transform: translateX(5px) rotateZ(1deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotateZ(0deg); }
+            100% { transform: rotateZ(360deg); }
+        }
+
+        .pattern {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .pattern:nth-child(1) { animation-delay: 0s; }
+        .pattern:nth-child(2) { animation-delay: 0.2s; }
+        .pattern:nth-child(3) { animation-delay: 0.4s; }
+        .pattern:nth-child(4) { animation-delay: 0.6s; }
+        .pattern:nth-child(5) { animation-delay: 0.8s; }
+        .pattern:nth-child(6) { animation-delay: 1s; }
+        .pattern:nth-child(7) { animation-delay: 1.2s; }
+        .pattern:nth-child(8) { animation-delay: 1.4s; }
+        .pattern:nth-child(9) { animation-delay: 1.6s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8338ec, #3a86ff);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(131, 56, 236, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(131, 56, 236, 0.6);
+        }
+
+        .info {
+            color: #06ffa5;
+            text-align: center;
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .gesture-hints {
+            color: #ffbe0b;
+            font-size: 11px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 800px) {
+            #video {
+                width: 100%;
+                height: auto;
+                max-width: 400px;
+                aspect-ratio: 4 / 5;
+            }
+
+            .card {
+                width: 240px;
+                height: 140px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <h2>🎨 Hand Gesture Card - BY KYZZ</h2>
 
-  <!-- CAMERA -->
-  <video
-    id="camera"
-    autoplay
-    playsinline
-    muted
-  ></video>
+    <div class="main-container">
+        <div class="camera-section">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+            <div class="info-overlay" id="status">
+                <span style="color: #ffbe0b;">⏳ Loading...</span>
+            </div>
+            <div class="gesture-display" id="gesture">
+                No Gesture
+            </div>
+        </div>
 
+        <div class="card-section">
+            <div class="card" id="card">
+                <div class="pattern" style="background: #ff006e;">◉</div>
+                <div class="pattern" style="background: #fb5607;">◉</div>
+                <div class="pattern" style="background: #ffbe0b;">◉</div>
+                <div class="pattern" style="background: #8338ec;">◉</div>
+                <div class="pattern" style="background: #3a86ff;">◉</div>
+                <div class="pattern" style="background: #06ffa5;">◉</div>
+                <div class="pattern" style="background: #ff85a1;">◉</div>
+                <div class="pattern" style="background: #faa43a;">◉</div>
+                <div class="pattern" style="background: #00f5ff;">◉</div>
+                <div class="watermark">BY KYZZ</div>
+            </div>
 
-  <!-- EFFECT -->
-  <canvas id="effectCanvas"></canvas>
+            <div class="controls">
+                <button onclick="randomizeColors()">🎨 Random Colors</button>
+            </div>
 
+            <div class="info">
+                💡 Tunjukkan tangan ke kamera dan bentuk gesture!
+            </div>
 
-  <!-- STATUS -->
-  <div id="topBar">
-    Kamera belum aktif
-  </div>
-
-
-  <!-- START -->
-  <button id="startButton">
-    📷 Aktifkan Kamera Belakang
-  </button>
-
-
-  <!-- INSTRUCTION -->
-  <div id="instruction">
-    Buat frame dengan kedua tangan
-  </div>
-
-
-  <!-- SHUTTER -->
-  <button id="shutter"></button>
-
-
-  <!-- LOADING -->
-  <div id="loading">
-    <div class="spinner"></div>
-
-    <div id="loadingText">
-      Memuat Hand Tracking...
+            <div class="gesture-hints">
+                ✋ Peace (2 jari) = Shake<br>
+                🔺 Triangle (3 jari) = Pulse<br>
+                👍 Thumbs Up = Spin<br>
+                ✌️ Rock (2 jari) = Random Color
+            </div>
+        </div>
     </div>
-  </div>
 
-
-  <!-- ERROR -->
-  <div id="errorBox">
-
-    <h2>❌ Terjadi masalah</h2>
-
-    <div id="errorText"></div>
-
-    <br>
-
-    <button id="retryButton">
-      Coba Lagi
-    </button>
-
-  </div>
-
-
-  <script type="module">
-
-    /* =====================================================
-       KONFIGURASI
-    ===================================================== */
-
-    const MP_VERSION = "0.10.18";
-
-    const MP_PACKAGE =
-      `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`;
-
-    const WASM_URL =
-      `${MP_PACKAGE}/wasm`;
-
-    const MODEL_URL =
-      "https://storage.googleapis.com/mediapipe-models/" +
-      "hand_landmarker/hand_landmarker/float16/1/" +
-      "hand_landmarker.task";
-
-
-    /* =====================================================
-       ELEMENT
-    ===================================================== */
-
-    const video =
-      document.getElementById("camera");
-
-    const canvas =
-      document.getElementById("effectCanvas");
-
-    const ctx =
-      canvas.getContext("2d");
-
-    const startButton =
-      document.getElementById("startButton");
-
-    const shutter =
-      document.getElementById("shutter");
-
-    const status =
-      document.getElementById("topBar");
-
-    const instruction =
-      document.getElementById("instruction");
-
-    const loading =
-      document.getElementById("loading");
-
-    const loadingText =
-      document.getElementById("loadingText");
-
-    const errorBox =
-      document.getElementById("errorBox");
-
-    const errorText =
-      document.getElementById("errorText");
-
-    const retryButton =
-      document.getElementById("retryButton");
-
-
-    /* =====================================================
-       STATE
-    ===================================================== */
-
-    let handLandmarker = null;
-
-    let cameraStream = null;
-
-    let lastVideoTime = -1;
-
-    let currentFrame = null;
-
-    let animationTime = 0;
-
-    let processing = false;
-
-
-    /* =====================================================
-       RESIZE
-    ===================================================== */
-
-    function resizeCanvas() {
-
-      canvas.width =
-        window.innerWidth;
-
-      canvas.height =
-        window.innerHeight;
-
-    }
-
-    resizeCanvas();
-
-    window.addEventListener(
-      "resize",
-      resizeCanvas
-    );
-
-
-    /* =====================================================
-       ERROR
-    ===================================================== */
-
-    function showError(message) {
-
-      console.error(message);
-
-      errorText.textContent =
-        message;
-
-      errorBox.style.display =
-        "block";
-
-    }
-
-
-    function hideError() {
-
-      errorBox.style.display =
-        "none";
-
-    }
-
-
-    /* =====================================================
-       START
-    ===================================================== */
-
-    startButton.addEventListener(
-      "click",
-      startCamera
-    );
-
-
-    retryButton.addEventListener(
-      "click",
-      () => {
-
-        hideError();
-
-        startCamera();
-
-      }
-    );
-
-
-    async function startCamera() {
-
-      if (processing)
-        return;
-
-      processing = true;
-
-      hideError();
-
-      startButton.style.display =
-        "none";
-
-
-      /*
-       =====================================================
-       PENTING:
-
-       KAMERA DIMINTA TERLEBIH DAHULU.
-
-       Jadi MediaPipe tidak bisa mencegah
-       browser menampilkan permission.
-       =====================================================
-      */
-
-      try {
-
-        status.textContent =
-          "Meminta izin kamera...";
-
-
-        if (
-          !navigator.mediaDevices ||
-          !navigator.mediaDevices.getUserMedia
-        ) {
-
-          throw new Error(
-            "Browser tidak mendukung kamera atau website tidak berjalan melalui HTTPS."
-          );
-
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const card = document.getElementById('card');
+        const statusDiv = document.getElementById('status');
+        const gestureDiv = document.getElementById('gesture');
+        const patterns = document.querySelectorAll('.pattern');
+
+        let detector = null;
+        let lastGestureTime = 0;
+        const GESTURE_COOLDOWN = 500; // ms
+
+        const allColors = [
+            '#ff006e', '#fb5607', '#ffbe0b', '#8338ec', '#3a86ff', 
+            '#06ffa5', '#ff85a1', '#faa43a', '#00f5ff', '#ff1744'
+        ];
+
+        // Distance calculator
+        function distance(p1, p2) {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            return Math.sqrt(dx * dx + dy * dy);
         }
 
+        // Get finger tip position
+        function getFingerTip(keypoints, fingerIndex) {
+            // Finger tips: 4(thumb), 8(index), 12(middle), 16(ring), 20(pinky)
+            const tips = [4, 8, 12, 16, 20];
+            return keypoints[tips[fingerIndex]];
+        }
 
-        /*
-          KAMERA BELAKANG
-        */
-
-        cameraStream =
-          await navigator.mediaDevices.getUserMedia({
-
-            video: {
-
-              facingMode: {
-                exact: "environment"
-              },
-
-              width: {
-                ideal: 1280
-              },
-
-              height: {
-                ideal: 720
-              }
-
-            },
-
-            audio: false
-
-          });
-
-
-      }
-
-      catch (cameraError) {
-
-        /*
-          Kalau exact environment gagal,
-          coba lagi dengan ideal environment.
-        */
-
-        console.warn(
-          "Kamera belakang exact gagal:",
-          cameraError
-        );
-
-
-        try {
-
-          cameraStream =
-            await navigator.mediaDevices.getUserMedia({
-
-              video: {
-
-                facingMode: {
-                  ideal: "environment"
-                },
-
-                width: {
-                  ideal: 1280
-                },
-
-                height: {
-                  ideal: 720
+        // Count raised fingers
+        function countRaisedFingers(keypoints) {
+            let count = 0;
+            for (let i = 0; i < 5; i++) {
+                const tip = getFingerTip(keypoints, i);
+                const pip = keypoints[tips[i] - 2]; // PIP joint
+                if (tip && pip && tip.score > 0.5 && pip.score > 0.5) {
+                    if (tip.y < pip.y) { // Jari raised
+                        count++;
+                    }
                 }
+            }
+            return count;
+        }
 
-              },
+        const tips = [4, 8, 12, 16, 20];
 
-              audio: false
+        // Recognize gesture
+        function recognizeGesture(keypoints) {
+            if (!keypoints || keypoints.length < 21) return null;
 
+            // Count raised fingers
+            let raisedCount = 0;
+            for (let i = 0; i < 5; i++) {
+                const tip = getFingerTip(keypoints, i);
+                const pip = keypoints[tips[i] - 2];
+                if (tip && pip && tip.score > 0.5 && pip.score > 0.5) {
+                    if (tip.y < pip.y) raisedCount++;
+                }
+            }
+
+            // Check thumbs up - thumb pointing up
+            const thumbTip = keypoints[4];
+            const thumbPip = keypoints[3];
+            const indexTip = keypoints[8];
+            if (thumbTip && thumbPip && thumbTip.score > 0.5 && thumbPip.score > 0.5) {
+                if (thumbTip.y < thumbPip.y - 30 && Math.abs(thumbTip.x - indexTip.x) < 30) {
+                    return 'THUMBS_UP';
+                }
+            }
+
+            // Check peace/rock - 2 fingers
+            if (raisedCount === 2) {
+                const indexTip = keypoints[8];
+                const middleTip = keypoints[12];
+                const distance2Fingers = indexTip && middleTip ? 
+                    distance(indexTip, middleTip) : 0;
+                
+                if (distance2Fingers > 20) {
+                    return 'PEACE';
+                } else {
+                    return 'ROCK';
+                }
+            }
+
+            // Check triangle - 3 fingers
+            if (raisedCount === 3) {
+                const indexTip = keypoints[8];
+                const middleTip = keypoints[12];
+                const ringTip = keypoints[16];
+                
+                if (indexTip && middleTip && ringTip &&
+                    indexTip.score > 0.5 && middleTip.score > 0.5 && ringTip.score > 0.5) {
+                    return 'TRIANGLE';
+                }
+            }
+
+            // Check OK sign - thumb dan index close, other fingers up
+            if (raisedCount >= 3) {
+                const thumbTip = keypoints[4];
+                const indexTip = keypoints[8];
+                if (thumbTip && indexTip && 
+                    distance(thumbTip, indexTip) < 20) {
+                    return 'OK_SIGN';
+                }
+            }
+
+            return null;
+        }
+
+        // Trigger gesture effect
+        function triggerGestureEffect(gesture) {
+            const now = Date.now();
+            if (now - lastGestureTime < GESTURE_COOLDOWN) return;
+            lastGestureTime = now;
+
+            switch(gesture) {
+                case 'PEACE':
+                    gestureDiv.textContent = '✌️ Peace!';
+                    gestureDiv.className = 'gesture-display peace';
+                    card.classList.remove('shake', 'pulse', 'spin');
+                    card.classList.add('shake');
+                    break;
+                case 'TRIANGLE':
+                    gestureDiv.textContent = '🔺 Triangle!';
+                    gestureDiv.className = 'gesture-display triangle';
+                    card.classList.remove('shake', 'pulse', 'spin');
+                    card.classList.add('pulse');
+                    break;
+                case 'THUMBS_UP':
+                    gestureDiv.textContent = '👍 Thumbs Up!';
+                    gestureDiv.className = 'gesture-display thumbs';
+                    card.classList.remove('shake', 'pulse', 'spin');
+                    card.classList.add('spin');
+                    break;
+                case 'ROCK':
+                    gestureDiv.textContent = '🤘 Rock!';
+                    gestureDiv.className = 'gesture-display rock';
+                    randomizeColors();
+                    break;
+                case 'OK_SIGN':
+                    gestureDiv.textContent = '👌 OK!';
+                    gestureDiv.className = 'gesture-display ok';
+                    randomizeColors();
+                    break;
+            }
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 400 },
+                        height: { ideal: 500 }
+                    }
+                });
+
+                video.srcObject = stream;
+
+                const model = await handPoseDetection.createDetector(
+                    handPoseDetection.SupportedModels.MediaPipeHands,
+                    { runtime: 'tfjs' }
+                );
+                detector = model;
+
+                statusDiv.innerHTML = '✅ Ready!';
+                statusDiv.style.color = '#06ffa5';
+
+                detectHands();
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = '❌ Error';
+                statusDiv.style.color = '#ff1744';
+            }
+        }
+
+        // Detect hands
+        async function detectHands() {
+            if (!detector) {
+                requestAnimationFrame(detectHands);
+                return;
+            }
+
+            try {
+                const hands = await detector.estimateHands(video);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (hands.length > 0) {
+                    const hand = hands[0];
+                    const keypoints = hand.keypoints;
+
+                    if (keypoints && keypoints.length > 0) {
+                        // Draw skeleton
+                        ctx.strokeStyle = '#00ffff';
+                        ctx.lineWidth = 2;
+                        ctx.fillStyle = '#00ff00';
+
+                        keypoints.forEach((point) => {
+                            if (point.score > 0.5) {
+                                ctx.beginPath();
+                                ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        });
+
+                        // Draw connections
+                        const connections = [
+                            [0, 1], [1, 2], [2, 3], [3, 4],
+                            [0, 5], [5, 6], [6, 7], [7, 8],
+                            [0, 9], [9, 10], [10, 11], [11, 12],
+                            [0, 13], [13, 14], [14, 15], [15, 16],
+                            [0, 17], [17, 18], [18, 19], [19, 20]
+                        ];
+
+                        connections.forEach(([start, end]) => {
+                            const startPoint = keypoints[start];
+                            const endPoint = keypoints[end];
+                            if (startPoint.score > 0.5 && endPoint.score > 0.5) {
+                                ctx.beginPath();
+                                ctx.moveTo(startPoint.x, startPoint.y);
+                                ctx.lineTo(endPoint.x, endPoint.y);
+                                ctx.stroke();
+                            }
+                        });
+
+                        // Control card
+                        const controlPoint = keypoints[8];
+                        if (controlPoint && controlPoint.score > 0.5) {
+                            const normalizedX = (controlPoint.x / canvas.width) * 2 - 1;
+                            const normalizedY = (controlPoint.y / canvas.height) * 2 - 1;
+
+                            const rotateX = normalizedY * 20;
+                            const rotateY = normalizedX * 20;
+
+                            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                        }
+
+                        // Recognize gesture
+                        const gesture = recognizeGesture(keypoints);
+                        if (gesture) {
+                            triggerGestureEffect(gesture);
+                        }
+                    }
+                } else {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+                    gestureDiv.textContent = 'No Gesture';
+                    gestureDiv.className = 'gesture-display';
+                }
+            } catch (error) {
+                console.error('Detection error:', error);
+            }
+
+            requestAnimationFrame(detectHands);
+        }
+
+        // Random colors
+        function randomizeColors() {
+            patterns.forEach((pattern) => {
+                const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
+                pattern.style.background = randomColor;
             });
-
         }
 
-        catch (secondError) {
-
-          processing = false;
-
-          startButton.style.display =
-            "block";
-
-          status.textContent =
-            "Kamera gagal";
-
-          showError(
-            getCameraErrorMessage(secondError)
-          );
-
-          return;
-
-        }
-
-      }
-
-
-      /*
-       =====================================================
-       KAMERA BERHASIL
-       =====================================================
-      */
-
-      video.srcObject =
-        cameraStream;
-
-
-      try {
-
-        await video.play();
-
-      }
-
-      catch (e) {
-
-        console.warn(
-          "video.play():",
-          e
-        );
-
-      }
-
-
-      status.textContent =
-        "📷 Kamera aktif";
-
-
-      shutter.style.display =
-        "block";
-
-
-      /*
-       =====================================================
-       BARU SEKARANG LOAD MEDIAPIPE
-       =====================================================
-      */
-
-      loading.style.display =
-        "flex";
-
-      loadingText.textContent =
-        "Memuat Hand Tracking...";
-
-
-      try {
-
-        await loadMediaPipe();
-
-      }
-
-      catch (mpError) {
-
-        processing = false;
-
-        loading.style.display =
-          "none";
-
-        status.textContent =
-          "Kamera aktif • Hand Tracking gagal";
-
-        instruction.textContent =
-          "Kamera sudah aktif, tetapi Hand Tracking gagal dimuat.";
-
-        showError(
-          "Kamera berhasil dibuka, tetapi Hand Tracking gagal dimuat.\n\n" +
-          mpError.message
-        );
-
-        return;
-
-      }
-
-
-      loading.style.display =
-        "none";
-
-
-      processing = false;
-
-
-      status.textContent =
-        "🟢 Hand Tracking aktif";
-
-      instruction.textContent =
-        "👐 Arahkan kedua tangan dan bentuk frame";
-
-
-      requestAnimationFrame(
-        detectionLoop
-      );
-
-    }
-
-
-    /* =====================================================
-       CAMERA ERROR MESSAGE
-    ===================================================== */
-
-    function getCameraErrorMessage(error) {
-
-      const name =
-        error?.name || "";
-
-      if (name === "NotAllowedError") {
-
-        return (
-          "Izin kamera ditolak.\n\n" +
-          "Buka pengaturan izin kamera untuk browser " +
-          "dan izinkan website ini menggunakan kamera."
-        );
-
-      }
-
-
-      if (name === "NotFoundError") {
-
-        return (
-          "Kamera tidak ditemukan pada perangkat."
-        );
-
-      }
-
-
-      if (name === "NotReadableError") {
-
-        return (
-          "Kamera sedang digunakan aplikasi lain."
-        );
-
-      }
-
-
-      if (name === "SecurityError") {
-
-        return (
-          "Browser memblokir akses kamera. " +
-          "Pastikan website dibuka melalui HTTPS."
-        );
-
-      }
-
-
-      return (
-        "Kamera tidak dapat dibuka.\n\n" +
-        error.message
-      );
-
-    }
-
-
-    /* =====================================================
-       LOAD MEDIAPIPE
-    ===================================================== */
-
-    async function loadMediaPipe() {
-
-      loadingText.textContent =
-        "Menghubungkan MediaPipe...";
-
-
-      /*
-        Import package yang dipin versinya.
-
-        Bukan @latest.
-      */
-
-      const vision =
-        await import(
-          `${MP_PACKAGE}/vision_bundle.mjs`
-        );
-
-
-      const {
-        HandLandmarker,
-        FilesetResolver
-      } = vision;
-
-
-      if (
-        !HandLandmarker ||
-        !FilesetResolver
-      ) {
-
-        throw new Error(
-          "HandLandmarker atau FilesetResolver tidak tersedia dari MediaPipe."
-        );
-
-      }
-
-
-      loadingText.textContent =
-        "Memuat mesin Hand Tracking...";
-
-
-      const filesetResolver =
-        await FilesetResolver.forVisionTasks(
-          WASM_URL
-        );
-
-
-      loadingText.textContent =
-        "Memuat model tangan...";
-
-
-      handLandmarker =
-        await HandLandmarker.createFromOptions(
-          filesetResolver,
-          {
-
-            baseOptions: {
-
-              modelAssetPath:
-                MODEL_URL,
-
-              /*
-                GPU lebih cepat,
-                tetapi beberapa HP/browser
-                bisa bermasalah.
-
-                Kita coba GPU dahulu.
-              */
-
-              delegate: "GPU"
-
-            },
-
-            runningMode: "VIDEO",
-
-            numHands: 2,
-
-            minHandDetectionConfidence:
-              0.5,
-
-            minHandPresenceConfidence:
-              0.5,
-
-            minTrackingConfidence:
-              0.5
-
-          }
-        );
-
-
-      console.log(
-        "MediaPipe berhasil dimuat."
-      );
-
-    }
-
-
-    /* =====================================================
-       DETECTION LOOP
-    ===================================================== */
-
-    function detectionLoop() {
-
-      animationTime += 0.025;
-
-
-      if (
-        handLandmarker &&
-        video.readyState >= 2
-      ) {
-
-        if (
-          video.currentTime !==
-          lastVideoTime
-        ) {
-
-          lastVideoTime =
-            video.currentTime;
-
-
-          try {
-
-            const result =
-              handLandmarker.detectForVideo(
-                video,
-                performance.now()
-              );
-
-
-            processHands(result);
-
-          }
-
-          catch (e) {
-
-            console.error(
-              "Detection error:",
-              e
-            );
-
-          }
-
-        }
-
-      }
-
-
-      requestAnimationFrame(
-        detectionLoop
-      );
-
-    }
-
-
-    /* =====================================================
-       HAND PROCESSING
-    ===================================================== */
-
-    function processHands(result) {
-
-      currentFrame = null;
-
-
-      if (
-        !result ||
-        !result.landmarks ||
-        result.landmarks.length < 2
-      ) {
-
-        status.textContent =
-          "🟡 Mencari kedua tangan";
-
-        instruction.textContent =
-          "Tunjukkan kedua tangan";
-
-        drawEmpty();
-
-        return;
-
-      }
-
-
-      const handA =
-        result.landmarks[0];
-
-      const handB =
-        result.landmarks[1];
-
-
-      /*
-       =====================================================
-       LANDMARK
-
-       4 = ibu jari
-       8 = telunjuk
-       =====================================================
-      */
-
-      const thumbA =
-        normalizedPoint(
-          handA[4]
-        );
-
-      const indexA =
-        normalizedPoint(
-          handA[8]
-        );
-
-      const thumbB =
-        normalizedPoint(
-          handB[4]
-        );
-
-      const indexB =
-        normalizedPoint(
-          handB[8]
-        );
-
-
-      /*
-       =====================================================
-       FRAME DARI EMPAT UJUNG JARI
-       =====================================================
-      */
-
-      const minX =
-        Math.min(
-          thumbA.x,
-          indexA.x,
-          thumbB.x,
-          indexB.x
-        );
-
-      const maxX =
-        Math.max(
-          thumbA.x,
-          indexA.x,
-          thumbB.x,
-          indexB.x
-        );
-
-      const minY =
-        Math.min(
-          thumbA.y,
-          indexA.y,
-          thumbB.y,
-          indexB.y
-        );
-
-      const maxY =
-        Math.max(
-          thumbA.y,
-          indexA.y,
-          thumbB.y,
-          indexB.y
-        );
-
-
-      let x =
-        minX;
-
-      let y =
-        minY;
-
-      let width =
-        maxX - minX;
-
-      let height =
-        maxY - minY;
-
-
-      /*
-       =====================================================
-       MINIMUM FRAME
-       =====================================================
-      */
-
-      if (
-        width < 0.12 ||
-        height < 0.08
-      ) {
-
-        status.textContent =
-          "🟡 Dekatkan kedua tangan";
-
-        instruction.textContent =
-          "Rentangkan kedua tangan sedikit";
-
-        drawEmpty();
-
-        return;
-
-      }
-
-
-      /*
-       =====================================================
-       PADDING
-       =====================================================
-      */
-
-      const paddingX =
-        width * 0.12;
-
-      const paddingY =
-        height * 0.20;
-
-
-      x -= paddingX;
-
-      y -= paddingY;
-
-      width +=
-        paddingX * 2;
-
-      height +=
-        paddingY * 2;
-
-
-      /*
-       =====================================================
-       LIMIT
-       =====================================================
-      */
-
-      x =
-        Math.max(
-          0,
-          x
-        );
-
-      y =
-        Math.max(
-          0,
-          y
-        );
-
-      width =
-        Math.min(
-          1 - x,
-          width
-        );
-
-      height =
-        Math.min(
-          1 - y,
-          height
-        );
-
-
-      currentFrame = {
-
-        x:
-          x *
-          canvas.width,
-
-        y:
-          y *
-          canvas.height,
-
-        width:
-          width *
-          canvas.width,
-
-        height:
-          height *
-          canvas.height
-
-      };
-
-
-      status.textContent =
-        "🟢 FRAME TERDETEKSI";
-
-      instruction.textContent =
-        "✨ Frame aktif — gerakkan tangan";
-
-
-      drawFrame();
-
-    }
-
-
-    /* =====================================================
-       POINT
-    ===================================================== */
-
-    function normalizedPoint(point) {
-
-      return {
-
-        x: point.x,
-
-        y: point.y
-
-      };
-
-    }
-
-
-    /* =====================================================
-       EMPTY
-    ===================================================== */
-
-    function drawEmpty() {
-
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-    }
-
-
-    /* =====================================================
-       DRAW FRAME
-    ===================================================== */
-
-    function drawFrame() {
-
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-
-      if (!currentFrame)
-        return;
-
-
-      const {
-        x,
-        y,
-        width,
-        height
-      } = currentFrame;
-
-
-      /*
-       =====================================================
-       GELAPKAN AREA LUAR
-       =====================================================
-      */
-
-      ctx.save();
-
-
-      ctx.fillStyle =
-        "rgba(0,0,0,0.42)";
-
-
-      ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-
-      /*
-       =====================================================
-       LUBANG FRAME
-       =====================================================
-      */
-
-      ctx.globalCompositeOperation =
-        "destination-out";
-
-
-      ctx.fillRect(
-        x,
-        y,
-        width,
-        height
-      );
-
-
-      ctx.restore();
-
-
-      /*
-       =====================================================
-       WARNA PSYCHEDELIC
-       =====================================================
-      */
-
-      ctx.save();
-
-
-      ctx.beginPath();
-
-      ctx.rect(
-        x,
-        y,
-        width,
-        height
-      );
-
-      ctx.clip();
-
-
-      const g =
-        ctx.createLinearGradient(
-          x,
-          y,
-          x + width,
-          y + height
-        );
-
-
-      const hue =
-        (animationTime * 90) % 360;
-
-
-      g.addColorStop(
-        0,
-        `hsla(${hue},100%,55%,0.38)`
-      );
-
-      g.addColorStop(
-        0.25,
-        `hsla(${hue + 70},100%,55%,0.38)`
-      );
-
-      g.addColorStop(
-        0.5,
-        `hsla(${hue + 150},100%,55%,0.38)`
-      );
-
-      g.addColorStop(
-        0.75,
-        `hsla(${hue + 230},100%,55%,0.38)`
-      );
-
-      g.addColorStop(
-        1,
-        `hsla(${hue + 310},100%,55%,0.38)`
-      );
-
-
-      ctx.fillStyle =
-        g;
-
-
-      ctx.fillRect(
-        x,
-        y,
-        width,
-        height
-      );
-
-
-      /*
-       =====================================================
-       GLITCH LINES
-       =====================================================
-      */
-
-      for (
-        let i = 0;
-        i < 18;
-        i++
-      ) {
-
-        const lineY =
-          y +
-          (
-            (
-              i / 18 +
-              animationTime * 0.03
-            ) % 1
-          ) *
-          height;
-
-
-        const lineHue =
-          (
-            hue +
-            i * 27
-          ) % 360;
-
-
-        ctx.fillStyle =
-          `hsla(${lineHue},100%,60%,0.16)`;
-
-
-        ctx.fillRect(
-          x,
-          lineY,
-          width,
-          Math.max(
-            2,
-            height / 40
-          )
-        );
-
-      }
-
-
-      /*
-       =====================================================
-       SCAN LINE
-       =====================================================
-      */
-
-      const scanY =
-        y +
-        (
-          (
-            animationTime * 0.8
-          ) % 1
-        ) *
-        height;
-
-
-      ctx.fillStyle =
-        "rgba(255,255,255,0.28)";
-
-
-      ctx.fillRect(
-        x,
-        scanY,
-        width,
-        2
-      );
-
-
-      ctx.restore();
-
-
-      /*
-       =====================================================
-       FRAME BORDER
-       =====================================================
-      */
-
-      ctx.save();
-
-
-      ctx.strokeStyle =
-        "rgba(255,255,255,0.95)";
-
-      ctx.lineWidth =
-        3;
-
-      ctx.shadowBlur =
-        18;
-
-      ctx.shadowColor =
-        "cyan";
-
-
-      ctx.strokeRect(
-        x,
-        y,
-        width,
-        height
-      );
-
-
-      ctx.restore();
-
-
-      /*
-       =====================================================
-       CORNERS
-       =====================================================
-      */
-
-      drawCorners(
-        x,
-        y,
-        width,
-        height
-      );
-
-    }
-
-
-    /* =====================================================
-       CORNERS
-    ===================================================== */
-
-    function drawCorners(
-      x,
-      y,
-      width,
-      height
-    ) {
-
-      const size =
-        Math.min(
-          38,
-          width * 0.15,
-          height * 0.25
-        );
-
-
-      ctx.save();
-
-
-      ctx.strokeStyle =
-        "white";
-
-      ctx.lineWidth =
-        5;
-
-      ctx.lineCap =
-        "round";
-
-      ctx.shadowBlur =
-        15;
-
-      ctx.shadowColor =
-        "#00ffff";
-
-
-      /*
-       TOP LEFT
-      */
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x,
-        y + size
-      );
-
-      ctx.lineTo(
-        x,
-        y
-      );
-
-      ctx.lineTo(
-        x + size,
-        y
-      );
-
-      ctx.stroke();
-
-
-      /*
-       TOP RIGHT
-      */
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x + width - size,
-        y
-      );
-
-      ctx.lineTo(
-        x + width,
-        y
-      );
-
-      ctx.lineTo(
-        x + width,
-        y + size
-      );
-
-      ctx.stroke();
-
-
-      /*
-       BOTTOM LEFT
-      */
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x,
-        y + height - size
-      );
-
-      ctx.lineTo(
-        x,
-        y + height
-      );
-
-      ctx.lineTo(
-        x + size,
-        y + height
-      );
-
-      ctx.stroke();
-
-
-      /*
-       BOTTOM RIGHT
-      */
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x + width - size,
-        y + height
-      );
-
-      ctx.lineTo(
-        x + width,
-        y + height
-      );
-
-      ctx.lineTo(
-        x + width,
-        y + height - size
-      );
-
-      ctx.stroke();
-
-
-      ctx.restore();
-
-    }
-
-
-    /* =====================================================
-       FOTO
-    ===================================================== */
-
-    shutter.addEventListener(
-      "click",
-      takePhoto
-    );
-
-
-    function takePhoto() {
-
-      if (!video.videoWidth)
-        return;
-
-
-      const output =
-        document.createElement(
-          "canvas"
-        );
-
-
-      output.width =
-        video.videoWidth;
-
-      output.height =
-        video.videoHeight;
-
-
-      const octx =
-        output.getContext("2d");
-
-
-      /*
-       =====================================================
-       MIRROR TIDAK DIGUNAKAN
-
-       Karena kamera belakang.
-       =====================================================
-      */
-
-      octx.drawImage(
-        video,
-        0,
-        0,
-        output.width,
-        output.height
-      );
-
-
-      /*
-       =====================================================
-       DOWNLOAD FOTO
-       =====================================================
-      */
-
-      const link =
-        document.createElement("a");
-
-
-      link.download =
-        `hand-frame-${Date.now()}.jpg`;
-
-
-      link.href =
-        output.toDataURL(
-          "image/jpeg",
-          0.95
-        );
-
-
-      link.click();
-
-    }
-
-  </script>
-
+        video.addEventListener('loadedmetadata', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        });
+
+        init();
+    </script>
 </body>
 </html>
